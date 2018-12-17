@@ -124,7 +124,7 @@ for i = 1:2 % Nhrs
     
     for j = 1:Num_reg
         k = k+1;
-        tracer_file = [wrffire_infile '_tracer'];
+        tracer_file = [wrffire_infile];
         tracer_name = ['tracer_' num2str(k)];
         truj_create_nc_vars(wrffire_inpath, wrffire_infile, tracer_outpath, invar, tracer_name);
         data{i,j+1}(indx_out{j}) = 0;

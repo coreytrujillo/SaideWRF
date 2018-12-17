@@ -21,8 +21,8 @@ for i = 1:ndims
 end
 
 % Fill new variable with given data in tmp file
-for i = 1:nvars
-    name_comp = strcmp(var_in, varname{i});
+for i = 1:numel(var_in)
+    name_comp = strcmp(var_in, varname);
     indx(i) = find(name_comp); % Get index of variable name in tmp file
     a = indx(i)-1;
     netcdf.putVar(ncid, a, data{i}); % fill variable with with data
