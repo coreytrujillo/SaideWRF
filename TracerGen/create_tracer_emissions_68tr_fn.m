@@ -80,7 +80,6 @@ print -painters -dpng -r600 temp_crop.png
 unix(['mv temp_crop.png figs/MAP_inversion_regions.png']);
 end
 
-
 datestr_aux=datestr(date_i,'yyyy-mm-dd_HH:MM:SS');
 [varname data] = read_netcdf_vars([input_path 'wrffirechemi_d01_' datestr_aux],{var_in});
 [Nx,Ny]=size(data{1});
@@ -118,7 +117,7 @@ while(datenum_aux < datenum(date_i_emiss))
  [varname_anthro e_anthro] = read_netcdf_vars([input_path_anthro 'wrfchemi_12z_d01'],{'E_CO'});
  end
   emis_tra=zeros([Nx Ny 1 1]);
-  emis_tra(:,:,1,1)=e_anthro{1}(:,:,1,mod(hh,12)+1);
+  emis_tra(:,:,1,1)= e_anthro{1}(:,:,1,mod(hh,12)+1);
   data_anthro={emis_tra};
 
  unix(['cp ' input_path 'wrffirechemi_d01_' datestr_aux ' ' out_path 'wrffirechemi_d01_' datestr_aux]);

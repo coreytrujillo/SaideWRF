@@ -1,16 +1,11 @@
 close all
 clear
 
-%Ntracer=121;
-%Ntracer=145;
-%Ntracer=100;
-%Ntracer=16;
-Ntracer=68;
-sample_file='/glade/p/nacd0005/saide/WRF_run/ORACLES/emissions_fire/qfed/wrffirechemi_d01_2015-09-02_00:00:00';%emissions
-%out_path='/glade/p/nacd0005/saide/WRF_run/ORACLES/emissions_fire/qfed/with_tracer/';
-out_path='/glade/p/nacd0005/saide/ORACLES_forecast/input/fire_qfed2/';
+Ntracer=4;
+sample_file='wrffirechemi_d01_2013-08-22_00:00:00';%emissions
+name_out='wrf_tracer_base';
+out_path='./';
 var_in='ebu_in_co';
-name_out='wrffirechemi_d01_tracer_base';
 
 %create zero var
 unix(['ncks -O -v ' var_in ' ' sample_file ' ' out_path name_out '_0emiss']);
