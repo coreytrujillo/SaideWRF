@@ -162,9 +162,8 @@ for i = 1:8 %Nhrs
         end
         
         data_yes = anth_emis{i};
-        regnum
-        data_yes(indx_out{regnum}) = 0;
-        data_no = zeros(size(data_yes));        
+        data_yes(indx_out(regnum)) = 0;
+        data_no = ant_emis{i} = 0.0;
 
         t1 = (time_num-1)*(Num_reg+1);
         t2 = (time_num)*(Num_reg+1);
