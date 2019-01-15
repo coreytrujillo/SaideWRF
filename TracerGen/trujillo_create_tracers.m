@@ -8,10 +8,10 @@ clc;clear all;clf; format compact;
 
 %%%%%%%%%% Define and Plot regions %%%%%%%%%%
 % Domain corners
-loni = -124;
-lonf = -114;
-lati = 36;
-latf = 42;
+loni = -114; %-124;
+lonf = -109; %-114;
+lati = 39.5; %36;
+latf = 43.5; %42;
 
 % Domain Center
 lonc = (loni + lonf)/2;
@@ -161,17 +161,18 @@ for i = 1:8 %Nhrs
             regnum = 5;
         end
         
-        data_yes = anth_emis{i};
-        regnum
-        data_yes(indx_out{regnum}) = 0;
-        data_no = zeros(size(data_yes));        
+        data{i} = truj_read_nc(wrffire_infile, {var_in});
+        data_yes = data{i};
+        data_yes{i}(indx_out{regnum}) = 0;
+        data_no = zeros(size(data_yes{i}));        
 
         t1 = (time_num-1)*(Num_reg+1);
         t2 = (time_num)*(Num_reg+1);
+        
         if m > t1 && m <= t2 && time_num~=0
-            truj_write_nc(outpath, tracer_outfile, {tracer_var_out}, {data_yes});
+            truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {data_yes{i}});
         elseif m <= t1 | m > t2 | time_num==0
-            truj_write_nc(outpath, tracer_outfile, {tracer_var_out}, {data_no});
+            truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {data_no});
         else
             disp('Error - date outside of range')
         end
