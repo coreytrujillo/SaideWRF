@@ -59,7 +59,7 @@ end
 hold off
 axis([loni lonf lati latf])
 
-%%%%%%%%% Define Regions in Terms of Grid Cells %%%%%%%%%%
+%%%%%%%%%% Define Regions in Terms of Grid Cells %%%%%%%%%%
 % Get lat lon data from wrf region
 latlon_file = 'wrfinput_d01';
 [wrf_latlon_data] = truj_read_nc(latlon_file, {'XLAT', 'XLONG'});
@@ -112,14 +112,13 @@ intv = 4; % Interval for emission in hours
 Nemiss = round((date_emis_f - date_emis_i)*24)/intv; % Number of emissions phases
 date_emis_vec = date_emis_i:intv/24:date_emis_f;
 
-Ntra = round((date_emis_f - date_emis_i)*24/intv)*(Num_reg + 1);
+Ntra = round((date_emis_f - date_emis_i)*24/intv)*(Num_reg + 1); % Number of Tracers
 
 wrffire_inpath = './';
 tracer_outpath = 'out/';
 wrffire_base = 'wrffirechemi_d01_';
 anthro_pref = './wrfchemi_';
 var_in = 'ebu_in_co';
-% unix([cp wrffire_inpath '/wrffirechemi* ' wrffire_outpath]);
 
 count = 0;
 time_num = 0;
@@ -131,12 +130,15 @@ for i = 1:8 %Nhrs
         time_num = time_num+1;
     end
     wrffire_infile = [wrffire_base datenowstr];
-
+    
+    % Create Tracer files
     for p = 1:Ntra
-        var_out_base = 'tracer_';
+        var_out_base = 'tr17_';
         var_out =  [var_out_base num2str(p)];
         truj_create_nc_vars(wrffire_inpath, wrffire_infile, tracer_outpath, var_in, var_out)
     end
+    
+    % Get NEI Data
     hh = str2num(datestr(datenow,'HH'));
     if hh <12
         anth_data = truj_read_nc([anthro_pref '00z_d01'], {'E_CO'});
@@ -148,12 +150,12 @@ for i = 1:8 %Nhrs
     
     anth_i = mod(hh,12)+1;
     anth_emis{i} = anth_data{1}(:,:,1,anth_i);
-%     data{i,1} = anth_emis{i};
+    data{i,1} = anth_emis{i};
     
     tracer_outfile = wrffire_infile;
     
     for m = 1:Ntra
-        tracer_var_out_base = 'tracer_';
+        tracer_var_out_base = 'tr17_';
         tracer_var_out =  [tracer_var_out_base num2str(m)];
         
         regnum = mod(m, Num_reg+1);
@@ -161,9 +163,9 @@ for i = 1:8 %Nhrs
             regnum = 5;
         end
         
-        data{i} = truj_read_nc(wrffire_infile, {var_in});
-        data_yes = data{i};
-        data_yes{i}(indx_out{regnum}) = 0;
+%         data{i} = truj_read_nc(wrffire_infile, {var_in});
+        data_yes{i,m} = data{i};
+        data_yes{i,m}(indx_out{regnum}) = 0;
         data_no = zeros(size(data_yes{i}));        
 
         t1 = (time_num-1)*(Num_reg+1);
@@ -176,29 +178,7 @@ for i = 1:8 %Nhrs
         else
             disp('Error - date outside of range')
         end
-
     end
-    
-%     for j = 1:Num_reg + 1
-%         tracer_no = ceil(j/intv);
-% %         tracer_file = [wrffire_infile];
-% %         tracer_name = ['tracer_' num2str(k)];
-% %         truj_create_nc_vars(wrffire_inpath, wrffire_infile, tracer_outpath, invar, tracer_name);
-% %         data{i,j+1}(indx_out{j}) = 0;
-%         if datenow < date_emis_i
-% %             truj_write_nc(tracer_outpath, tracer_file, {tracer_name}, {data{i,1}});
-%         elseif datenow >= date_emis_i && datenow <= date_emis_f
-% %             data{i}(index_out) = 0;
-% %             truj_write_nc(tracer_outpath, tracer_file, {tracer_name}, {data{i,j+1}});
-%               
-%         elseif datenow > date_emis_f
-% %             truj_write_nc(tracer_outpath, tracer_file, {tracer_name}, {data{i,1}});
-%         else
-% %             display('Error, datenow is not in date range!!!')
-%         end
-%     end
-%     
-
     
     datenow = datenow + 1/24; % Increase date by 1 hour
 end
