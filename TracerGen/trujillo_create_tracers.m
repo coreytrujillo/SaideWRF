@@ -8,10 +8,10 @@ clc;clear all;clf; format compact;
 
 %%%%%%%%%% Define and Plot regions %%%%%%%%%%
 % Domain corners
-loni = -114; %-124;
-lonf = -109; %-114;
-lati = 39.5; %36;
-latf = 43.5; %42;
+loni = -124;
+lonf = -114;
+lati = 36;
+latf = 42;
 
 % Domain Center
 lonc = (loni + lonf)/2;
@@ -122,7 +122,7 @@ var_in = 'ebu_in_co';
 
 count = 0;
 time_num = 0;
-for i = 1:8 %Nhrs
+for i = 1:Nhrs
     
     datenowstr = datestr(datenow, 'yyyy-mm-dd_HH:MM:SS');
     date_emis_str = datestr(date_emis_vec(1) + intv/24*time_num, 'yyyy-mm-dd_HH:MM:SS');
@@ -182,4 +182,3 @@ for i = 1:8 %Nhrs
     
     datenow = datenow + 1/24; % Increase date by 1 hour
 end
-
