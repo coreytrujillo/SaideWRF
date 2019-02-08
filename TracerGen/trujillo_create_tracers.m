@@ -1,5 +1,5 @@
 % This function creates tracer files for Saide's WRF-Chem tracer code
-% 22 - 26 August 2013
+% 22 August 2013
 % Fire epicenter 37.85N, 120.08W
 % Lat domain: [36, 42]N
 % Lon domain: [-122, -112]W
@@ -67,7 +67,7 @@ wrf_lat = double(wrf_latlon_data{1}(:,:,1));
 wrf_lon = double(wrf_latlon_data{2}(:,:,1));
 
 % Plot settings
-sp_axis = ceil(sqrt(Num_reg));
+subplot_axis = ceil(sqrt(Num_reg));
 figure(2)
 
 % Initial values for grid cells in and out of each region
@@ -75,13 +75,14 @@ indx_in = cell(Num_reg+1,1); % Grid cells in each region
 indx_in{Num_reg + 1} = logical(zeros(size(wrf_lat))); % Grid cells in domain outside of all regions
 indx_out = indx_in; % Grid cells outside of a particular region
 
+% Define variables for indices in and out of each region
 for i = 1:Num_reg
     % Define grid cell values for each region
     indx_in{i} = inpolygon(wrf_lon, wrf_lat, reg_x{i}, reg_y{i}); % 1s in region 0s out
     indx_out{i} = ~indx_in{i};  % 1s out of region, 0s in
     
     % Plot
-    subplot(sp_axis, sp_axis, i)
+    subplot(subplot_axis, subplot_axis, i)
     contourf(wrf_lon,wrf_lat,indx_in{i});
     
     % All regions combined
@@ -91,14 +92,16 @@ end
 % All grid cells in domain that are outside of all regions
 indx_out{Num_reg + 1} = ~indx_in{Num_reg + 1};
 
-% % Optional plot of outside regions
-% figure(3)
-% subplot(2,1,1)
-% contourf(wrf_lon, wrf_lat, indx_in{Num_reg+1})
-% subplot(2,1,2)
-% contourf(wrf_lon, wrf_lat, indx_out{Num_reg+1})
+%  Optional plot of outside regions
+if 1==1
+    figure(3)
+    subplot(2,1,1)
+    contourf(wrf_lon, wrf_lat, indx_in{Num_reg+1})
+    subplot(2,1,2)
+    contourf(wrf_lon, wrf_lat, indx_out{Num_reg+1})
+end
 
-%%%%%%%%%% Create Tracer files %%%%%%%%%%
+%% %%%%%%%% Create Tracer files %%%%%%%%%%
 % Simulation time
 datei = datenum([2013 08 22 0 0 0]); % Initial date of simulation
 datef = datenum([2013 08 23 0 0 0]); % Final date of simulation
@@ -110,18 +113,20 @@ date_emis_i = datenum([2013 08 22 04 0 0]); % Initial date of emission
 date_emis_f = datenum([2013 08 22 20 0 0]); % Final date of emission
 intv = 4; % Interval for emission in hours
 Nemiss = round((date_emis_f - date_emis_i)*24)/intv; % Number of emissions phases
-date_emis_vec = date_emis_i:intv/24:date_emis_f;
+date_emis_vec = date_emis_i:intv/24:date_emis_f; % Vector of emission times
 
-Ntra = round((date_emis_f - date_emis_i)*24/intv)*(Num_reg + 1); % Number of Tracers
+% Number of Tracers
+Ntra = round((date_emis_f - date_emis_i)*24/intv)*(Num_reg + 1); 
 
+% File names
 wrffire_inpath = './';
 tracer_outpath = 'out/';
 wrffire_base = 'wrffirechemi_d01_';
 anthro_pref = './wrfchemi_';
 var_in = 'ebu_in_co';
 
-count = 0;
-time_num = 0;
+%%%%%%%%%% Create Tracer files %%%%%%%%%%
+time_num = 0; % Initialzie
 for i = 1:Nhrs
     
     datenowstr = datestr(datenow, 'yyyy-mm-dd_HH:MM:SS');
@@ -158,27 +163,32 @@ for i = 1:Nhrs
         tracer_var_out_base = 'tr17_';
         tracer_var_out =  [tracer_var_out_base num2str(m)];
         
-        regnum = mod(m, Num_reg+1);
-        if regnum == 0
-            regnum = 5;
-        end
-        
-%         data{i} = truj_read_nc(wrffire_infile, {var_in});
+        % Define emission only in each region
         data_yes{i,m} = data{i};
-        data_yes{i,m}(indx_out{regnum}) = 0;
-        data_no = zeros(size(data_yes{i}));        
-
-        t1 = (time_num-1)*(Num_reg+1);
-        t2 = (time_num)*(Num_reg+1);
+        regnum = mod(m, Num_reg+1);
+        if regnum == 0 % If we're in no region
+            data_yes{i,m}(indx_in{end}) = 0; % Set all values inside any defined region to zero
+        elseif regnum <= Num_reg % If we're in a region
+            data_yes{i,m}(indx_out{regnum}) = 0; % Set values outside of that region to zero
+        else
+            disp('Error assigning emissions to regions')
+        end
+        data_no = zeros(size(data_yes{i,m}));      
+        regnum = regnum+1; % Index region number
         
+        % Write Emissions to files
+        t1 = (time_num-1)*(Num_reg+1) % Start time of current emission phase
+        t2 = (time_num)*(Num_reg+1) % End time of current emmission phase
         if m > t1 && m <= t2 && time_num~=0
-            truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {data_yes{i}});
+            truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {data_yes{i,m}});
         elseif m <= t1 | m > t2 | time_num==0
             truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {data_no});
         else
             disp('Error - date outside of range')
         end
+        
     end
     
-    datenow = datenow + 1/24; % Increase date by 1 hour
+    % Incriment date by 1 hour
+    datenow = datenow + 1/24; 
 end
