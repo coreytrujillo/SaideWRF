@@ -101,7 +101,7 @@ if 1==1
     contourf(wrf_lon, wrf_lat, indx_out{Num_reg+1})
 end
 
-%% %%%%%%%% Create Tracer files %%%%%%%%%%
+%%%%%%%%%% Create Tracer files %%%%%%%%%%
 % Simulation time
 datei = datenum([2013 08 22 0 0 0]); % Initial date of simulation
 datef = datenum([2013 08 23 0 0 0]); % Final date of simulation
@@ -137,11 +137,11 @@ for i = 1:Nhrs
     wrffire_infile = [wrffire_base datenowstr];
     
     % Create Tracer files
-    for p = 1:Ntra
-        var_out_base = 'tr17_';
-        var_out =  [var_out_base num2str(p)];
-        truj_create_nc_vars(wrffire_inpath, wrffire_infile, tracer_outpath, var_in, var_out)
-    end
+%     for p = 1:Ntra
+%         var_out_base = 'ebu_in_co_';
+%         var_out =  [var_out_base num2str(p)];
+%         truj_create_nc_vars(wrffire_inpath, wrffire_infile, tracer_outpath, var_in, var_out)
+%     end
     
     % Get NEI Data
     hh = str2num(datestr(datenow,'HH'));
@@ -157,37 +157,37 @@ for i = 1:Nhrs
     anth_emis{i} = anth_data{1}(:,:,1,anth_i);
     data{i,1} = anth_emis{i};
     
-    tracer_outfile = wrffire_infile;
+%     tracer_outfile = wrffire_infile;
     
-    for m = 1:Ntra
-        tracer_var_out_base = 'tr17_';
-        tracer_var_out =  [tracer_var_out_base num2str(m)];
+%     for m = 1:Ntra
+%         tracer_var_out_base = 'ebu_in_co_';
+%         tracer_var_out =  [tracer_var_out_base num2str(m)];
+%         
+%         % Define emission only in each region
+%         data_yes{i,m} = data{i};
+%         regnum = mod(m, Num_reg+1);
+%         if regnum == 0 % If we're in no region
+%             data_yes{i,m}(indx_in{end}) = 0; % Set all values inside any defined region to zero
+%         elseif regnum <= Num_reg % If we're in a region
+%             data_yes{i,m}(indx_out{regnum}) = 0; % Set values outside of that region to zero
+%         else
+%             disp('Error assigning emissions to regions')
+%         end
+%         data_no = zeros(size(data_yes{i,m}));      
+%         regnum = regnum+1; % Index region number
+%         
+%         % Write Emissions to files
+%         t1 = (time_num-1)*(Num_reg+1) % Start time of current emission phase
+%         t2 = (time_num)*(Num_reg+1) % End time of current emmission phase
+%         if m > t1 && m <= t2 && time_num~=0
+%             truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {data_yes{i,m}});
+%         elseif m <= t1 | m > t2 | time_num==0
+%             truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {data_no});
+%         else
+%             disp('Error - date outside of range')
+%         end
         
-        % Define emission only in each region
-        data_yes{i,m} = data{i};
-        regnum = mod(m, Num_reg+1);
-        if regnum == 0 % If we're in no region
-            data_yes{i,m}(indx_in{end}) = 0; % Set all values inside any defined region to zero
-        elseif regnum <= Num_reg % If we're in a region
-            data_yes{i,m}(indx_out{regnum}) = 0; % Set values outside of that region to zero
-        else
-            disp('Error assigning emissions to regions')
-        end
-        data_no = zeros(size(data_yes{i,m}));      
-        regnum = regnum+1; % Index region number
-        
-        % Write Emissions to files
-        t1 = (time_num-1)*(Num_reg+1) % Start time of current emission phase
-        t2 = (time_num)*(Num_reg+1) % End time of current emmission phase
-        if m > t1 && m <= t2 && time_num~=0
-            truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {data_yes{i,m}});
-        elseif m <= t1 | m > t2 | time_num==0
-            truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {data_no});
-        else
-            disp('Error - date outside of range')
-        end
-        
-    end
+%     end
     
     % Incriment date by 1 hour
     datenow = datenow + 1/24; 
