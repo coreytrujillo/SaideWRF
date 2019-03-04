@@ -217,11 +217,6 @@ for i = 1:Nhrs
 
     % Put NEI Data in final tracer
 % %     tracer_var_out =  [tracervar_outbase num2str(Ntra)];
-    datenow_str
-    test = datenow==date_emis_i;
-    test1 = datenow > date_emis_i;
-    test2 = datenow < date_emis_i;
-    test3 = datenow_str <= date_Emis_i_Str;
     
     if datenow>=date_emis_i && datenow<=date_emis_f
 % %         truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {anth_data{i}});
@@ -233,5 +228,5 @@ for i = 1:Nhrs
         disp('Date error with Anthropogenic data')
     end
     % Incriment date by 1 hour
-    datenow = datenow + 1/24; 
+    datenow = datenow + hours(1); 
 end
