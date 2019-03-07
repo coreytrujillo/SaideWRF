@@ -101,10 +101,7 @@ if 1==0
     contourf(wrf_lon, wrf_lat, indx_out{Num_reg+1})
 end
 
-%% %%%%%%%% Create Tracer files %%%%%%%%%%
-% Temporary debugging vars
-clc
-Num_reg = 5
+%%%%%%%%%% Create Tracer files %%%%%%%%%%
 
 
 % Simulation time
@@ -146,7 +143,7 @@ for i = 1:Nhrs
 %     date_emis_str = datestr(date_emis_low)
     
     % Update tracer temporal region 
-    if date_emis_low == datenow % && datenow <= date_emis_vec(end)
+    if datenow==date_emis_vec(time_num+1) && datenow < date_emis_vec(end)
         time_num = time_num+1;
     end
     t1 = (time_num-1)*(Num_reg+1); % Min tracer index for emission
@@ -155,74 +152,74 @@ for i = 1:Nhrs
     % Name the correct wrffire file for now
     wrffire_infile = [wrffire_basename datenow_str];
     
-% %     % Get QFED data
-% %     fire_data(i) = truj_read_nc(wrffire_infile, {fire_invar});
-% % %     figure(3)
-% % %     pcolor(wrf_lon, wrf_lat,fire_data{i})
+    % Get QFED data
+    fire_data(i) = truj_read_nc(wrffire_infile, {fire_invar});
+%     figure(3)
+%     pcolor(wrf_lon, wrf_lat,fire_data{i})
 
-% %     % Create Tracer files with QFED data
-% %     var_in = 'ebu_in_co';
-% %     tracervar_outbase = 'ebu_in_co_';
-% %     for p = 1:Ntra
-% %         var_out =  [tracervar_outbase num2str(p)];
-% %         truj_create_nc_vars(wrffire_inpath, wrffire_infile, tracer_outpath, var_in, var_out)
-% %     end
-% % 
-% %     tracer_outfile = wrffire_infile;
+    % Create Tracer files with QFED data
+    var_in = 'ebu_in_co';
+    tracervar_outbase = 'ebu_in_co_';
+    for p = 1:Ntra
+        var_out =  [tracervar_outbase num2str(p)];
+        truj_create_nc_vars(wrffire_inpath, wrffire_infile, tracer_outpath, var_in, var_out)
+    end
+
+    tracer_outfile = wrffire_infile;
     
     % Assign values to each tracer for current hour
     for j = 1:Ntra-1 % Tracer index
         % Naming
 
-% %         tracer_var_out =  [tracervar_outbase num2str(j)];
+        tracer_var_out =  [tracervar_outbase num2str(j)];
         
-% %         % Define emissions only in each region
-% %         fire_yes{i,j} = fire_data{i};
-% %         regnum = mod(j, Num_reg+1);
-% %         if regnum == 0 % If we're in no region
-% %             fire_yes{i,j}(indx_in{end}) = 0; % Set all values inside any defined region to zero
-% %         elseif regnum <= Num_reg % If we're in a region
-% %             fire_yes{i,j}(indx_out{regnum}) = 0; % Set values outside of that region to zero
-% %         else
-% %             disp('Error assigning emissions to regions')
-% %         end
-% %         fire_no = zeros(size(fire_yes{i,j})); % No fire data
-% %         regnum = regnum+1; % Index region number
-% %         
-% %         % Write Emissions to files
-% %         if j > t1 && j <= t2 && time_num~=0
-% %             truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {fire_yes{i,j}});
-% %         elseif j <= t1 | j > t2 | time_num==0
-% %             truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {fire_no});
-% %         else
-% %             disp('Error - date outside of range')
-% %         end
+        % Define emissions only in each region
+        fire_yes{i,j} = fire_data{i};
+        regnum = mod(j, Num_reg+1);
+        if regnum == 0 % If we're in no region
+            fire_yes{i,j}(indx_in{end}) = 0; % Set all values inside any defined region to zero
+        elseif regnum <= Num_reg % If we're in a region
+            fire_yes{i,j}(indx_out{regnum}) = 0; % Set values outside of that region to zero
+        else
+            disp('Error assigning emissions to regions')
+        end
+        fire_no = zeros(size(fire_yes{i,j})); % No fire data
+        regnum = regnum+1; % Index region number
+        
+        % Write Emissions to files
+        if j > t1 && j <= t2 && time_num~=0
+            truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {fire_yes{i,j}});
+        elseif j <= t1 | j > t2 | time_num==0
+            truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {fire_no});
+        else
+            disp('Error - date outside of range')
+        end
         
     end
     
-% %     % Get NEI Data
-% %     hh = str2num(datestr(datenow,'HH')); % Current hour
-% %     if hh <12
-% %         anth_data = truj_read_nc([anthro_pref '00z_d01'], {'E_CO'});
-% %     elseif hh  < 24
-% %         anth_data = truj_read_nc([anthro_pref '12z_d01'], {'E_CO'});
-% %     else
-% %         disp('Error reading anthropogenic emissions!')
-% %     end
-% %     
-% %     anth_index = mod(hh,12)+1;
-% %     anth_emis{i} = anth_data{1}(:,:,1,anth_index);
-% %     anth_data{i} = anth_emis{i};
-% %     anth_no = zeros(size(anth_emis{i}));
+    % Get NEI Data
+    hh = str2num(datestr(datenow,'HH')); % Current hour
+    if hh <12
+        anth_data = truj_read_nc([anthro_pref '00z_d01'], {'E_CO'});
+    elseif hh  < 24
+        anth_data = truj_read_nc([anthro_pref '12z_d01'], {'E_CO'});
+    else
+        disp('Error reading anthropogenic emissions!')
+    end
+    
+    anth_index = mod(hh,12)+1;
+    anth_emis{i} = anth_data{1}(:,:,1,anth_index);
+    anth_data{i} = anth_emis{i};
+    anth_no = zeros(size(anth_emis{i}));
 
     % Put NEI Data in final tracer
-% %     tracer_var_out =  [tracervar_outbase num2str(Ntra)];
+    tracer_var_out =  [tracervar_outbase num2str(Ntra)];
     
     if datenow>=date_emis_i && datenow<=date_emis_f
-% %         truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {anth_data{i}});
+        truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {anth_data{i}});
         disp('HI!')
     elseif datenow<date_emis_i | datenow>date_emis_f
-% %         truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {anth_no});
+        truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {anth_no});
         disp('BYE!')
     else
         disp('Date error with Anthropogenic data')
