@@ -3,6 +3,8 @@
 
 function data = truj_read_nc(filename, extracted_vars)
 
+% Extracted var must be in curly braces 
+
 % Open netCDF file in read-only mode
 ncid = netcdf.open(filename); 
 
@@ -10,8 +12,7 @@ ncid = netcdf.open(filename);
 % and unlimited ID from file
 [ndims, nvars, nglobalatts, ultdID] = netcdf.inq(ncid);
 
-% Get each variable name, data type, dimension IDs
-% and number of attributes
+% Get each variable name, data type, dimension IDs and number of attributes
 for i = 1:nvars
     [varname{i}, dtype{i}, dimIDs{i}, natts{i}] = netcdf.inqVar(ncid, i-1);
 end
@@ -22,6 +23,7 @@ if strcmp(lower(extracted_vars{1}), 'all')
     for i = 1: nvars
         data{i} = netcdf.getVar(ncid, i-1);
     end
+    
 % Otherwise pull only data for vars requested
 else
     nvars_ext = numel(extracted_vars); % Number of vars to extract

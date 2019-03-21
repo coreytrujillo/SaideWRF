@@ -4,226 +4,280 @@
 % Lat domain: [36, 42]N
 % Lon domain: [-122, -112]W
 
-clc;clear all;clf; format compact;
+% To run this script you need the following input files:
+% wrfinput_d01
+% wrffirechemi_d01_
+% wrfchemi_
 
-%%%%%%%%%% Define and Plot regions %%%%%%%%%%
-% Domain corners
-loni = -124;
-lonf = -114;
-lati = 36;
-latf = 42;
+% Format
+clc;clear;clf; format compact;
 
-% Domain Center
-lonc = (loni + lonf)/2;
-latc = (lati + latf)/2;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                         %
+%                Define Physical Domain and Regions within                %
+%                                                                         %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%% Get lat lon data from domain as defined in wrfinput file %%%%%%%%%
+wrf_in = 'wrfinput_d01';
+[latlon_data] = truj_read_nc(wrf_in, {'XLAT', 'XLONG'});
+LAT = double(latlon_data{1}(:,:,1));
+LON = double(latlon_data{2}(:,:,1));
+
+% Calculate domain lat/lon extremes and centers
+lat_0 = min(min(LAT));
+lat_f = max(max(LAT));
+lat_c = (lat_0 + lat_f)/2;
+
+lon_0 = min(min(LON));
+lon_f = max(max(LON));
+lon_c = (lon_0 + lon_f)/2;
+
+%%%%%%%%%%%%%% Automatically generate four regions in domain %%%%%%%%%%%%%%
+% MODIFY this section for custom regions 
 
 % Region Corners
-rlon = [loni lonc lonf];
-rlat = [lati latc latf];
+rLON = [lon_0 lon_c lon_f];
+rLAT = [lat_0 lat_c lat_f];
 
-reg_x{1} = rlon([2 2 3 3]);
-reg_y{1} = rlat([2 3 3 2]);
+% Define Regions as quadrants in a cartesian graph:
+% Counter clockwise starting with top right
+reg_x{1} = rLON([2 2 3 3]);
+reg_y{1} = rLAT([2 3 3 2]);
 
-reg_x{2} = rlon([2 2 1 1]);
-reg_y{2} = rlat([2 3 3 2]);
+reg_x{2} = rLON([2 2 1 1]);
+reg_y{2} = rLAT([2 3 3 2]);
 
-reg_x{3} = rlon([2 1 1 2]);
-reg_y{3} = rlat([2 2 1 1]);
+reg_x{3} = rLON([2 1 1 2]);
+reg_y{3} = rLAT([2 2 1 1]);
 
-reg_x{4} = rlon([2 2 3 3]);
-reg_y{4} = rlat([2 1 1 2]);
+reg_x{4} = rLON([2 2 3 3]);
+reg_y{4} = rLAT([2 1 1 2]);
 
 % Number of Regions
-Num_reg = numel(reg_x);
+N_reg = numel(reg_x);
 
 % Region Labels
+% MODIFY these for different regions
 Name_reg = {'I' 'II' 'III' 'IV'};
-Name_lon = [-114.5 -119.5 -119.5 -114.5];
-Name_lat = [41.5 41.5 37.5 37.5];
+Name_LON = [-114.5 -119.5 -119.5 -114.5];
+Name_LAT = [41.5 41.5 37.5 37.5];
 
-% Load and Plot Map Boundary lines
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                         %
+%                              Plot regions                               %
+%                                                                         %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Load and Plot Map Boundary lines and set proper axes
 load 'm_coasts.mat';
 load coast.mat
 load conus.mat
+figure(1)
 plot(long, lat, 'k-')
+axis([lon_0 lon_f lat_0 lat_f])
 hold on
 plot(uslon, uslat, 'k')
 plot(statelon, statelat, 'k')
 
 % Plot Regions
-figure(1)
-for i = 1:Num_reg
+for i = 1:N_reg
     plot([reg_x{i} reg_x{i}(1)], [reg_y{i} reg_y{i}(1)])
-    text(Name_lon(i), Name_lat(i), Name_reg(i));
+    text(Name_LON(i), Name_LAT(i), Name_reg(i));
 end
 hold off
-axis([loni lonf lati latf])
 
-%%%%%%%%%% Define Regions in Terms of Grid Cells %%%%%%%%%%
-% Get lat lon data from wrf region
-latlon_file = 'wrfinput_d01';
-[wrf_latlon_data] = truj_read_nc(latlon_file, {'XLAT', 'XLONG'});
-wrf_lat = double(wrf_latlon_data{1}(:,:,1));
-wrf_lon = double(wrf_latlon_data{2}(:,:,1));
 
-% Plot settings
-subplot_axis = ceil(sqrt(Num_reg));
-figure(2)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                         %
+%             Define Indices Inside and Outside of Each Region            %
+%                                                                         %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Initial values for grid cells in and out of each region
-indx_in = cell(Num_reg+1,1); % Grid cells in each region
-indx_in{Num_reg + 1} = logical(zeros(size(wrf_lat))); % Grid cells in domain outside of all regions
+% Initialize values for grid cells in and out of each region
+indx_in = cell(N_reg+1,1); % Grid cells in each region
 indx_out = indx_in; % Grid cells outside of a particular region
 
-% Define variables for indices in and out of each region
-for i = 1:Num_reg
+%  Define a region in domain but out of all other defined regions
+indx_in{N_reg + 1} = logical(zeros(size(LAT))); 
+
+% Plot settings
+figure(2)
+subplot_axis = ceil(sqrt(N_reg));
+
+% Define variables for indices in and out of each region and plot 
+for i = 1:N_reg
     % Define grid cell values for each region
-    indx_in{i} = inpolygon(wrf_lon, wrf_lat, reg_x{i}, reg_y{i}); % 1s in region 0s out
+    indx_in{i} = inpolygon(LON, LAT, reg_x{i}, reg_y{i}); % 1s in region 0s out
     indx_out{i} = ~indx_in{i};  % 1s out of region, 0s in
     
     % Plot
     subplot(subplot_axis, subplot_axis, i)
-    contourf(wrf_lon,wrf_lat,indx_in{i});
+    contourf(LON,LAT,indx_in{i});
     
-    % All regions combined
-    indx_in{Num_reg + 1} = indx_in{Num_reg+1} | indx_in{i};
+    % Put a 1 in a cell in a defined region
+    indx_out{N_reg + 1} = indx_in{N_reg+1} & indx_in{i};
 end
 
 % All grid cells in domain that are outside of all regions
-indx_out{Num_reg + 1} = ~indx_in{Num_reg + 1};
+indx_in{N_reg + 1} = ~indx_out{N_reg + 1};
 
 %  Optional plot of outside regions
-if 1==0
+if all(indx_out{N_reg + 1}==0)
+    disp('Regions cover entire Domain!')
+else % This will be relevant if regions are not defined automatically 
+    disp('Regions do not cover entire domain - see Figure 3')
     figure(3)
     subplot(2,1,1)
-    contourf(wrf_lon, wrf_lat, indx_in{Num_reg+1})
+    title('Area covered by defined regions')
+    contourf(LON, LAT, indx_in{N_reg+1})
+    title('Area NOT covered by defined regions')
     subplot(2,1,2)
-    contourf(wrf_lon, wrf_lat, indx_out{Num_reg+1})
+    contourf(LON, LAT, indx_out{N_reg+1})
 end
 
-%%%%%%%%%% Create Tracer files %%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                         %
+%                          Create Tracer Files                            %
+%                                                                         %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-% Simulation time
-datei = datenum([2013 08 22 0 0 0]); % Initial date of simulation
-datef = datei + days(1); % Final date of simulation
-datenow = datei; % Initialize current date
-Nhrs = hours(datef - datei); % Number of hours in simulation
-
-% Emission time
-date_emis_i = datei + hours(4); % Initial date of emission
-date_emis_f = datei + hours(20); % Final date of emission
+%%%%%%%%%%%%%%%%%%%%%%%% Settings to MODIFY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Simulation times
+% MODIFY date_0 to match your start date
+% MODIFY date_f relative to date_0 using date functions
+% MODIFY date_emis_0 relative to date_0
+% MODIFY date_emis_f relative to date_0
+% MODIFY intv based on how often you want to cycle to the next tracer
+date_0 = datenum([2013 08 22 0 0 0]); % Initial date of simulation
+date_f = date_0 + days(1); % Final date of simulation
+date_emis_0 = date_0 + hours(4); % Initial date of emission
+date_emis_f = date_0 + hours(20); % Final date of emission
 intv = 4; % Interval for emission in hours
-Nemis_hrs = hours(date_emis_f - date_emis_i);
-Nemis_phs = Nemis_hrs/intv; % round((date_emis_f - date_emis_i)*24)/intv % Number of temporal emissions phases
-date_emis_vec = date_emis_i:hours(intv):date_emis_f; % Vector of emission times
-
-% Number of Tracers
-Ntra = Nemis_phs*(Num_reg + 1) +1 ;
 
 % Biomass Burning Names
 wrffire_inpath = './';
 wrffire_basename = 'wrffirechemi_d01_';
-fire_invar = 'ebu_in_co';
+wrffire_invar = 'ebu_in_co';
 
-% Anthro Names
+% Anthropogenic Emissions Names
 anthro_pref = 'wrfchemi_';
 anthro_invar = 'E_CO';
 
-% Output path
-tracer_outpath = 'out/';
+% Output path for wrffire files with tracer inputs
+tr_outpath = 'out/';
 
-%%%%%%%%%% Create Tracer files %%%%%%%%%%
-time_num = 0; % Initialzie
+%%%%%%%%%%%%%%%%%%%%% Initialize files adn constants %%%%%%%%%%%%%%%%%%%%%%
+% If output path does not exist, create it
+if 7~=exist(tr_outpath,'dir')
+    unix(['mkdir ' tr_outpath]);
+end
+
+% Initialze and constants
+datenow = date_0; % Initialize current date
+Nhrs = hours(date_f - date_0); % Number of hours in simulation
+Nemis_hrs = hours(date_emis_f - date_emis_0);
+Nemis_phs = Nemis_hrs/intv; % Number of temporal emissions phases
+date_emis_vec = date_emis_0:hours(intv):date_emis_f; % Vector of emission times
+Ntra = Nemis_phs*(N_reg) + 2 ; % # tracers: 1 for each time/reg, one for no reg, one for NEI
+ems_phs = 0; % Temporal Tracer Phase. Zero = no emissions
+
+% Names
+wrffire_invar = 'ebu_in_co'; % Variable to build tracer emissions tracers from
+tr_basename_out = 'ebu_in_co_'; % Base name for tracer Emissions
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% Populate Tracers %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for i = 1:Nhrs
-    
-    % Dates in string form 
+    % Date in string form 
     datenow_str = datestr(datenow, 'yyyy-mm-dd_HH:MM:SS');
-%     date_emis_low = date_emis_vec(1) + hours(4*floor(i/4));
-%     date_emis_str = datestr(date_emis_low)
-    
-    % Update tracer temporal region 
-    if datenow==date_emis_vec(time_num+1) && datenow < date_emis_vec(end)
-        time_num = time_num+1;
-    end
-    t1 = (time_num-1)*(Num_reg+1); % Min tracer index for emission
-    t2 = (time_num)*(Num_reg+1); % Max tracer index for emission
     
     % Name the correct wrffire file for now
     wrffire_infile = [wrffire_basename datenow_str];
+    tracer_outfile = wrffire_infile; % Name of tracer output file
+    
+    % Update tracer temporal region \
+    if datenow< date_emis_vec(1) | datenow >= date_emis_vec(end)
+        ems_phs = 0; % No emissions outside of emission period
+    elseif datenow==date_emis_vec(ems_phs+1)
+        ems_phs = ems_phs+1;
+    end
+    
+    % Tracer indices for current temporal tracer region
+    tr_indx_lo = (ems_phs-1)*(N_reg); % Lower tr idx for current time reg
+    tr_indx_hi = (ems_phs)*(N_reg); % Higher tr idx for current time reg
     
     % Get QFED data
-    fire_data(i) = truj_read_nc(wrffire_infile, {fire_invar});
-%     figure(3)
-%     pcolor(wrf_lon, wrf_lat,fire_data{i})
+    fire_data(i) = truj_read_nc(wrffire_infile, {wrffire_invar});
 
     % Create Tracer files with QFED data
-    var_in = 'ebu_in_co';
-    tracervar_outbase = 'ebu_in_co_';
     for p = 1:Ntra
-        var_out =  [tracervar_outbase num2str(p)];
-        truj_create_nc_vars(wrffire_inpath, wrffire_infile, tracer_outpath, var_in, var_out)
+        var_out =  [tr_basename_out num2str(p)];
+        truj_create_nc_vars(wrffire_inpath, wrffire_infile, tr_outpath, wrffire_invar, var_out)
     end
-
-    tracer_outfile = wrffire_infile;
     
-    % Assign values to each tracer for current hour
-    for j = 1:Ntra-1 % Tracer index
+    % Assign correct data values to each tracer for current hour and region
+    for j = 1:Ntra-2 % Tracer index
+        
         % Naming
-
-        tracer_var_out =  [tracervar_outbase num2str(j)];
+        tr_var_outname =  [tr_basename_out num2str(j)];
         
         % Define emissions only in each region
-        fire_yes{i,j} = fire_data{i};
-        regnum = mod(j, Num_reg+1);
-        if regnum == 0 % If we're in no region
-            fire_yes{i,j}(indx_in{end}) = 0; % Set all values inside any defined region to zero
-        elseif regnum <= Num_reg % If we're in a region
-            fire_yes{i,j}(indx_out{regnum}) = 0; % Set values outside of that region to zero
-        else
-            disp('Error assigning emissions to regions')
+        emis_yes{i,j} = fire_data{i}; % Initialize emission 
+        emis_yes{i,j}(:) = 3.5e6;
+        regnum = mod(j, N_reg);
+        if regnum == 0 % 
+            regnum = 4;
         end
-        fire_no = zeros(size(fire_yes{i,j})); % No fire data
+        
+        emis_yes{i,j}(indx_out{regnum}) = 0; % Set values outside of that region to zero
+        emis_no = zeros(size(emis_yes{i,j})); % No fire data
         regnum = regnum+1; % Index region number
         
         % Write Emissions to files
-        if j > t1 && j <= t2 && time_num~=0
-            truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {fire_yes{i,j}});
-        elseif j <= t1 | j > t2 | time_num==0
-            truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {fire_no});
+        if j > tr_indx_lo && j <= tr_indx_hi && ems_phs~=0
+            truj_write_nc(tr_outpath, tracer_outfile, {tr_var_outname}, {emis_yes{i,j}});
+        elseif j <= tr_indx_lo | j > tr_indx_hi | ems_phs==0
+            truj_write_nc(tr_outpath, tracer_outfile, {tr_var_outname}, {emis_no});
         else
             disp('Error - date outside of range')
         end
         
     end
     
+    %%%% Tracer for locations of domain in none of the defined regions %%%%
+    emis_yes{i,Ntra - 1} = fire_data{i}; % Initialize emission 
+    emis_yes{i,Ntra - 1}(indx_out{end}) = 0; % Set all values inside any defined region to zero
+    truj_write_nc(tr_outpath, tracer_outfile, {[tr_basename_out num2str(Ntra-1)]}, {emis_yes{i,Ntra - 1}})
+    
+    %%%%%%%%%%%%%% Final tracer for Anthropogenic Emissions %%%%%%%%%%%%%%%
+    % Get current hour and set NEI index
+    hr_now = str2num(datestr(datenow,'HH')); 
+    anth_index = mod(hr_now,12)+1;
+        
     % Get NEI Data
-    hh = str2num(datestr(datenow,'HH')); % Current hour
-    if hh <12
+    if hr_now <12
         anth_data = truj_read_nc([anthro_pref '00z_d01'], {'E_CO'});
-    elseif hh  < 24
+    elseif hr_now  < 24
         anth_data = truj_read_nc([anthro_pref '12z_d01'], {'E_CO'});
     else
         disp('Error reading anthropogenic emissions!')
     end
     
-    anth_index = mod(hh,12)+1;
+    % Initialize emissions in and out of region
     anth_emis{i} = anth_data{1}(:,:,1,anth_index);
     anth_data{i} = anth_emis{i};
     anth_no = zeros(size(anth_emis{i}));
 
     % Put NEI Data in final tracer
-    tracer_var_out =  [tracervar_outbase num2str(Ntra)];
-    
-    if datenow>=date_emis_i && datenow<=date_emis_f
-        truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {anth_data{i}});
-        disp('HI!')
-    elseif datenow<date_emis_i | datenow>date_emis_f
-        truj_write_nc(tracer_outpath, tracer_outfile, {tracer_var_out}, {anth_no});
-        disp('BYE!')
+    if datenow>=date_emis_0 && datenow<date_emis_f
+        truj_write_nc(tr_outpath, tracer_outfile, {[tr_basename_out num2str(Ntra)]}, {anth_data{i}});
+    elseif datenow<date_emis_0 | datenow>=date_emis_f
+        truj_write_nc(tr_outpath, tracer_outfile, {[tr_basename_out num2str(Ntra)]}, {anth_no});
     else
         disp('Date error with Anthropogenic data')
     end
+    
     % Incriment date by 1 hour
     datenow = datenow + hours(1); 
 end

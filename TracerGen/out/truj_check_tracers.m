@@ -14,7 +14,7 @@ wrf_in = '../wrfinput_d01'; % WRF input file
 % Constants
 Nhrs = 24; % Number of simulation hours
 date_0 = datenum([2013 08 22 0 0 0]); % Initial date of simulation
-Ntra = 18; % Number of tracers
+Ntra = 14; % Number of tracers
 
 % File names
 fire_filebase = 'wrffirechemi_d01_'; % File basename for QFED and Tracers
@@ -107,13 +107,14 @@ for i = 1:Nhrs
     % Tracer Plots
     for j = 1:Ntra
         subplot(sp_axx, sp_axy, j+1)
+        tr_name = [tr_varname_base num2str(j)];
         contourf(LON, LAT, data{i,j}, 50, 'LineStyle', 'none')
         title(tr_name, 'Interpreter', 'none') 
         
         % Colorbar limits
-        if j < Ntra
+        if j <= Ntra/2
             caxis([0,fire_max])
-        elseif j == Ntra % Last tracer should be NEI
+        elseif j > Ntra/2 % Last tracer should be NEI
             caxis([0,anthro_max])
         end
     end
@@ -127,7 +128,7 @@ for i = 1:Nhrs
     caxis([0,anthro_max]);
     
     % Save figure
-    saveas(figure(1), ['fig_' num2str(i) '.png'])
+    saveas(figure(1), ['fig_SF_' num2str(i, '%02d') '.png'])
     
     % Pause for animation 
     pause(0.1)
