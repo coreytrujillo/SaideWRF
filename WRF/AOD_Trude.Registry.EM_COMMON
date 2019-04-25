@@ -1,0 +1,13 @@
+
+#..In Registry.EM_COMMON, below the declaration of some other aerosol variables:
+
+# incoming optical depth derived from aerosol data
+state  real   aerodm    i{lsa}jm{ty}    misc        1    -   -     -
+state  real   pina      {lsa}           misc        1    -   -      "PINA"     "PRESSURE LEVEL OF OZONE MIXING RATIO"  "millibar"
+state  real   aod_wfa          ikj      misc        1         -      rh     "AOD_WFA"   "Aerosol optical depth, CCN aerosols"
+state  real   aod_ifa          ikj      misc        1         -      rh     "AOD_IFA"   "Aerosol optical depth, IN aerosols"
+
+
+#..Then in the package declaration for Thompson-aerosol physics:
+
+package   thompsonaero  mp_physics==28               -             moist:qv,qc,qr,qi,qs,qg;scalar:qni,qnr,qnc,qnwfa,qnifa;state:re_cloud,re_ice,re_snow,aod_wfa,aod_ifa,qnwfa2d

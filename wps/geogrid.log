@@ -1,0 +1,173 @@
+2018-08-30 21:19:24.555 ---  *** Starting program geogrid.exe ***
+2018-08-30 21:19:24.572 --- Using the following namelist variables:
+2018-08-30 21:19:24.572 --- &SHARE
+2018-08-30 21:19:24.572 ---   WRF_CORE         = ARW
+2018-08-30 21:19:24.572 ---   MAX_DOM          = 1
+2018-08-30 21:19:24.572 ---   START_YEAR       = 0
+2018-08-30 21:19:24.572 ---   START_MONTH      = 0
+2018-08-30 21:19:24.572 ---   START_DAY        = 0
+2018-08-30 21:19:24.572 ---   START_HOUR       = 0
+2018-08-30 21:19:24.572 ---   START_MINUTE     = 0
+2018-08-30 21:19:24.572 ---   START_SECOND     = 0
+2018-08-30 21:19:24.572 ---   END_YEAR         = 0
+2018-08-30 21:19:24.572 ---   END_MONTH        = 0
+2018-08-30 21:19:24.572 ---   END_DAY          = 0
+2018-08-30 21:19:24.572 ---   END_HOUR         = 0
+2018-08-30 21:19:24.572 ---   END_MINUTE       = 0
+2018-08-30 21:19:24.572 ---   END_SECOND       = 0
+2018-08-30 21:19:24.572 ---   START_DATE       = 2013-08-19_00:00:00
+2018-08-30 21:19:24.572 ---   END_DATE         = 2013-08-23_00:00:00
+2018-08-30 21:19:24.572 ---   INTERVAL_SECONDS = 21600
+2018-08-30 21:19:24.572 ---   IO_FORM_GEOGRID  = 2
+2018-08-30 21:19:24.572 ---   OPT_OUTPUT_FROM_GEOGRID_PATH = ./
+2018-08-30 21:19:24.572 ---   SUBGRID_RATIO_X  = 1
+2018-08-30 21:19:24.572 ---   SUBGRID_RATIO_Y  = 1
+2018-08-30 21:19:24.572 ---   DEBUG_LEVEL      = 0
+2018-08-30 21:19:24.572 ---   ACTIVE_GRID      = .TRUE.
+2018-08-30 21:19:24.572 ---   NOCOLONS         = .FALSE.
+2018-08-30 21:19:24.572 --- /
+2018-08-30 21:19:24.572 --- &GEOGRID
+2018-08-30 21:19:24.572 ---   PARENT_ID         = 1
+2018-08-30 21:19:24.572 ---   PARENT_GRID_RATIO = 1
+2018-08-30 21:19:24.572 ---   I_PARENT_START    = 1
+2018-08-30 21:19:24.572 ---   J_PARENT_START    = 1
+2018-08-30 21:19:24.572 ---   S_WE              = 1
+2018-08-30 21:19:24.572 ---   E_WE              = 660
+2018-08-30 21:19:24.572 ---   S_SN              = 1
+2018-08-30 21:19:24.572 ---   E_SN              = 560
+2018-08-30 21:19:24.572 ---   GEOG_DATA_RES     = 30s
+2018-08-30 21:19:24.572 ---   DX                = 4000.000000
+2018-08-30 21:19:24.572 ---   DY                = 4000.000000
+2018-08-30 21:19:24.572 ---   MAP_PROJ          = lambert
+2018-08-30 21:19:24.573 ---   POLE_LAT          = 90.000000
+2018-08-30 21:19:24.573 ---   POLE_LON          = 0.000000
+2018-08-30 21:19:24.573 ---   REF_LAT           = 41.400002
+2018-08-30 21:19:24.573 ---   REF_LON           = -111.199997
+2018-08-30 21:19:24.573 ---   REF_X             = 100000002004087734272.000000
+2018-08-30 21:19:24.573 ---   REF_Y             = 100000002004087734272.000000
+2018-08-30 21:19:24.573 ---   TRUELAT1          = 60.000000
+2018-08-30 21:19:24.573 ---   TRUELAT2          = 30.000000
+2018-08-30 21:19:24.573 ---   STAND_LON         = -111.199997
+2018-08-30 21:19:24.573 ---   GEOG_DATA_PATH    = /u/project/saide/xye/data/geog_V3/geog
+2018-08-30 21:19:24.573 ---   OPT_GEOGRID_TBL_PATH = geogrid/
+2018-08-30 21:19:24.573 --- /
+2018-08-30 21:19:24.585 --- Processing domain 1 of 1
+2018-08-30 21:19:24.585 --- INFORM: Using 30s interpolator sequence for HGT_M.
+2018-08-30 21:19:24.585 --- INFORM: Using 30s data source for HGT_M.
+2018-08-30 21:19:24.735 --- INFORM: Using 30s interpolator sequence for LANDUSEF.
+2018-08-30 21:19:24.735 --- INFORM: Using 30s data source for LANDUSEF.
+2018-08-30 21:19:24.824 --- INFORM: For SOILTEMP, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:24.824 --- INFORM: Using default interpolator sequence for SOILTEMP.
+2018-08-30 21:19:24.824 --- INFORM: For SOILTEMP, couldn't find 30s data source.
+2018-08-30 21:19:24.824 --- INFORM: Using default data source for SOILTEMP.
+2018-08-30 21:19:24.903 --- INFORM: Using 30s interpolator sequence for SOILCTOP.
+2018-08-30 21:19:24.903 --- INFORM: Using 30s data source for SOILCTOP.
+2018-08-30 21:19:25.034 --- INFORM: Using 30s interpolator sequence for SOILCBOT.
+2018-08-30 21:19:25.034 --- INFORM: Using 30s data source for SOILCBOT.
+2018-08-30 21:19:25.149 --- INFORM: For ALBEDO12M, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:25.149 --- INFORM: Using default interpolator sequence for ALBEDO12M.
+2018-08-30 21:19:25.149 --- INFORM: For ALBEDO12M, couldn't find 30s data source.
+2018-08-30 21:19:25.149 --- INFORM: Using default data source for ALBEDO12M.
+2018-08-30 21:19:25.186 --- INFORM: For GREENFRAC, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:25.186 --- INFORM: Using default interpolator sequence for GREENFRAC.
+2018-08-30 21:19:25.186 --- INFORM: For GREENFRAC, couldn't find 30s data source.
+2018-08-30 21:19:25.186 --- INFORM: Using default data source for GREENFRAC.
+2018-08-30 21:19:25.261 --- INFORM: For LAI12M, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:25.261 --- INFORM: Using default interpolator sequence for LAI12M.
+2018-08-30 21:19:25.261 --- INFORM: For LAI12M, couldn't find 30s data source.
+2018-08-30 21:19:25.261 --- INFORM: Using default data source for LAI12M.
+2018-08-30 21:19:25.348 --- INFORM: For SNOALB, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:25.348 --- INFORM: Using default interpolator sequence for SNOALB.
+2018-08-30 21:19:25.348 --- INFORM: For SNOALB, couldn't find 30s data source.
+2018-08-30 21:19:25.348 --- INFORM: Using default data source for SNOALB.
+2018-08-30 21:19:25.384 --- INFORM: For SLOPECAT, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:25.384 --- INFORM: Using default interpolator sequence for SLOPECAT.
+2018-08-30 21:19:25.384 --- INFORM: For SLOPECAT, couldn't find 30s data source.
+2018-08-30 21:19:25.384 --- INFORM: Using default data source for SLOPECAT.
+2018-08-30 21:19:25.430 --- INFORM: For CON, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:25.430 --- INFORM: Using default interpolator sequence for CON.
+2018-08-30 21:19:25.430 --- INFORM: For CON, couldn't find 30s data source.
+2018-08-30 21:19:25.430 --- INFORM: Using default data source for CON.
+2018-08-30 21:19:25.573 --- INFORM: For VAR, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:25.573 --- INFORM: Using default interpolator sequence for VAR.
+2018-08-30 21:19:25.573 --- INFORM: For VAR, couldn't find 30s data source.
+2018-08-30 21:19:25.573 --- INFORM: Using default data source for VAR.
+2018-08-30 21:19:25.619 --- INFORM: For OA1, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:25.619 --- INFORM: Using default interpolator sequence for OA1.
+2018-08-30 21:19:25.619 --- INFORM: For OA1, couldn't find 30s data source.
+2018-08-30 21:19:25.619 --- INFORM: Using default data source for OA1.
+2018-08-30 21:19:25.675 --- INFORM: For OA2, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:25.675 --- INFORM: Using default interpolator sequence for OA2.
+2018-08-30 21:19:25.675 --- INFORM: For OA2, couldn't find 30s data source.
+2018-08-30 21:19:25.675 --- INFORM: Using default data source for OA2.
+2018-08-30 21:19:25.736 --- INFORM: For OA3, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:25.736 --- INFORM: Using default interpolator sequence for OA3.
+2018-08-30 21:19:25.736 --- INFORM: For OA3, couldn't find 30s data source.
+2018-08-30 21:19:25.736 --- INFORM: Using default data source for OA3.
+2018-08-30 21:19:25.780 --- INFORM: For OA4, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:25.780 --- INFORM: Using default interpolator sequence for OA4.
+2018-08-30 21:19:25.780 --- INFORM: For OA4, couldn't find 30s data source.
+2018-08-30 21:19:25.780 --- INFORM: Using default data source for OA4.
+2018-08-30 21:19:25.814 --- INFORM: For OL1, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:25.814 --- INFORM: Using default interpolator sequence for OL1.
+2018-08-30 21:19:25.814 --- INFORM: For OL1, couldn't find 30s data source.
+2018-08-30 21:19:25.814 --- INFORM: Using default data source for OL1.
+2018-08-30 21:19:25.861 --- INFORM: For OL2, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:25.861 --- INFORM: Using default interpolator sequence for OL2.
+2018-08-30 21:19:25.861 --- INFORM: For OL2, couldn't find 30s data source.
+2018-08-30 21:19:25.861 --- INFORM: Using default data source for OL2.
+2018-08-30 21:19:25.913 --- INFORM: For OL3, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:25.913 --- INFORM: Using default interpolator sequence for OL3.
+2018-08-30 21:19:25.913 --- INFORM: For OL3, couldn't find 30s data source.
+2018-08-30 21:19:25.914 --- INFORM: Using default data source for OL3.
+2018-08-30 21:19:25.962 --- INFORM: For OL4, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:25.962 --- INFORM: Using default interpolator sequence for OL4.
+2018-08-30 21:19:25.962 --- INFORM: For OL4, couldn't find 30s data source.
+2018-08-30 21:19:25.962 --- INFORM: Using default data source for OL4.
+2018-08-30 21:19:26.002 --- INFORM: For EROD, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:26.002 --- INFORM: Using default interpolator sequence for EROD.
+2018-08-30 21:19:26.002 --- INFORM: For EROD, couldn't find 30s data source.
+2018-08-30 21:19:26.002 --- INFORM: Using default data source for EROD.
+2018-08-30 21:19:26.051 --- INFORM: For CLAYFRAC, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:26.051 --- INFORM: Using default interpolator sequence for CLAYFRAC.
+2018-08-30 21:19:26.051 --- INFORM: For CLAYFRAC, couldn't find 30s data source.
+2018-08-30 21:19:26.051 --- INFORM: Using default data source for CLAYFRAC.
+2018-08-30 21:19:26.097 --- INFORM: For SANDFRAC, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:26.097 --- INFORM: Using default interpolator sequence for SANDFRAC.
+2018-08-30 21:19:26.097 --- INFORM: For SANDFRAC, couldn't find 30s data source.
+2018-08-30 21:19:26.097 --- INFORM: Using default data source for SANDFRAC.
+2018-08-30 21:19:26.114 --- INFORM: Using 30s interpolator sequence for VAR_SSO.
+2018-08-30 21:19:26.114 --- INFORM: Using 30s data source for VAR_SSO.
+2018-08-30 21:19:26.226 --- INFORM: For LAKE_DEPTH, couldn't find interpolator sequence for resolution 30s.
+2018-08-30 21:19:26.226 --- INFORM: Using default interpolator sequence for LAKE_DEPTH.
+2018-08-30 21:19:26.226 --- INFORM: For LAKE_DEPTH, couldn't find 30s data source.
+2018-08-30 21:19:26.226 --- INFORM: Using default data source for LAKE_DEPTH.
+2018-08-30 21:19:26.851 --- Processing field 1 of 28 (LANDUSEF)
+2018-08-30 21:19:32.430 --- Processing field 2 of 28 (LU_INDEX)
+2018-08-30 21:19:32.569 --- Processing field 3 of 28 (HGT_M)
+2018-08-30 21:19:37.461 --- Processing field 4 of 28 (SOILTEMP)
+2018-08-30 21:19:37.690 --- Processing field 5 of 28 (SOILCTOP)
+2018-08-30 21:19:42.454 --- Processing field 6 of 28 (SCT_DOM)
+2018-08-30 21:19:42.507 --- Processing field 7 of 28 (SOILCBOT)
+2018-08-30 21:19:47.283 --- Processing field 8 of 28 (SCB_DOM)
+2018-08-30 21:19:47.338 --- Processing field 9 of 28 (ALBEDO12M)
+2018-08-30 21:19:49.153 --- Processing field 10 of 28 (GREENFRAC)
+2018-08-30 21:19:50.348 --- Processing field 11 of 28 (LAI12M)
+2018-08-30 21:19:51.422 --- Processing field 12 of 28 (SNOALB)
+2018-08-30 21:19:51.621 --- Processing field 13 of 28 (SLOPECAT)
+2018-08-30 21:19:51.932 --- Processing field 14 of 28 (CON)
+2018-08-30 21:19:52.233 --- Processing field 15 of 28 (VAR)
+2018-08-30 21:19:52.550 --- Processing field 16 of 28 (OA1)
+2018-08-30 21:19:52.823 --- Processing field 17 of 28 (OA2)
+2018-08-30 21:19:53.131 --- Processing field 18 of 28 (OA3)
+2018-08-30 21:19:53.414 --- Processing field 19 of 28 (OA4)
+2018-08-30 21:19:53.715 --- Processing field 20 of 28 (OL1)
+2018-08-30 21:19:53.988 --- Processing field 21 of 28 (OL2)
+2018-08-30 21:19:54.250 --- Processing field 22 of 28 (OL3)
+2018-08-30 21:19:54.531 --- Processing field 23 of 28 (OL4)
+2018-08-30 21:19:54.845 --- Processing field 24 of 28 (EROD)
+2018-08-30 21:19:55.330 --- Processing field 25 of 28 (CLAYFRAC)
+2018-08-30 21:19:55.938 --- Processing field 26 of 28 (SANDFRAC)
+2018-08-30 21:19:56.841 --- Processing field 27 of 28 (VAR_SSO)
+2018-08-30 21:20:02.385 --- Processing field 28 of 28 (LAKE_DEPTH)
+2018-08-30 21:20:08.441 ---  *** Successful completion of program geogrid.exe ***

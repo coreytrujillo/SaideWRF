@@ -1,0 +1,105 @@
+
+02 Feb 2007  (updated 05 Jan 2008 and 2015Feb11)
+
+Input data for this case comes from NCAR MSS archive.
+
+NCEP/FNL 1degree data in GRIB format starting 1999Jul30
+can be found /DSS/DS083.2
+Example: /DSS/DS083.2/data/grib1/fnl_20011212_12_00
+Example: /DSS/DS083.2/data/grib2/fnl_20120704_12_00.grib2.v2
+
+Even better, files are on /glade, for example:
+  /glade/p/rda/data/ds083.2/grib2/2013/2013.09/fnl_20130903_18_00.grib2
+
+
+For NCEP/NCAR North American Regional Reanalysis project
+data, see: http://dss.ucar.edu/pub/narr/
+and on MSS at: /DSS/DS608.0/NARRraw/199801
+
+For the operational model output data, see:
+http://dss.ucar.edu/datasets/ds609.2/inventories/eta.inv
+for Eta model files.  These are massive files of nearly
+a month in a single tar file.  Read from MSS with something
+like:  msread -fBI G40071 /DSS/G40071  then untar
+
+For RAL archive of GRIB format data (RUC, NAM, GFS), see:
+/RAPDMG/grib/GFS003/20060910/20060910_i00_f000_GFS003.grb.gz
+for example.
+
+Older RUC data is also available here, for example:
+/GTHOMPSN/GRIB_DATA/2002Jun13/200216400.F00.RUC[sfc|b|p].grb
+
+For the MAPS/RUC grib files, I used my grib_printHeaders
+program to print out starting byte position of each GRIB
+record, then a "jiffy" program from Frank Hage (called
+grib_file_parse.c) to extract only those bytes needed for
+the single model run time.  Tedious process but that is
+how the individual .grb files were obtained.
+
+That archive exists on MSS (DS070.0) at:
+http://dss.ucar.edu/datasets/ds070.0/MSS-file-list.html
+Start with  msread -fBI Y51571 /DSS/Y51571
+
+--Greg Thompson, NCAR-RAL
+
+
+
+//
+// Thanks to Frank Hage for this simple jiffy program to parse
+// a GRIB format file and pull out GRIB records starting at byte
+// position until total length of bytes.  This is useful with
+// GRIB files on Mass Store of multiple days of RUC or Eta model
+// data.
+// G. Thompson, 02 Feb 2007
+//   (compile using "cc -Bstatic -o EXEC filename.c")
+//
+
+#include <stdio.h>
+#include <errno.h>
+
+long start_byte = 207177270;
+long nbytes = 5026304;
+char *inputname = "Y51571";
+char *outname = "1998012912_F00_RUCb40.grb";
+
+
+int main(int argc, char **argv)
+{
+	FILE *f;
+	FILE *fnew;
+	long num_elems;
+
+	char *buf;
+	if((buf = (char *) calloc(nbytes,1)) == NULL) {
+		perror("problem with calloc");
+		exit(-1);
+	}
+
+    printf("Opening file %s\n",inputname);
+	if((f = fopen(inputname,"r")) == NULL) {
+			perror("error opening file");
+			exit(-1);
+	}
+
+    printf("Seeking to position %d\n", start_byte);
+	fseek(f,start_byte,0);
+    printf("Reading %d bytes\n",nbytes);
+	if((num_elems = fread(buf,1,nbytes,f)) != nbytes ) {
+			perror("error reading from file");
+			exit(-1);
+	}
+
+   printf("Opening file for writing %s\n",outname);
+	if((fnew = fopen(outname,"w")) == NULL) {
+			perror("error opening output file");
+			exit(-1);
+	}
+
+    printf("Writing to file %s\n",outname);
+	if((num_elems = fwrite(buf,1,nbytes,fnew)) != nbytes ) {
+			perror("error writing to file");
+			exit(-1);
+	}
+
+	exit(0);
+}

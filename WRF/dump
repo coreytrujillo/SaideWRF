@@ -1,0 +1,1079 @@
+./chem/chem_driver.F:  USE module_input_tracer, only: set_tracer
+./chem/chem_driver.F:!        grelldrvct (convective tracer transport)
+./chem/chem_driver.F:    CASE (CHEM_TRACER,CHEM_TRACE2)
+./chem/chem_driver.F:       CALL wrf_debug(15,'tracer mode: only doing emissions and dry dep in chem_driver')
+./chem/chem_driver.F:    CASE (CO2_TRACER,GHG_TRACER)
+./chem/chem_driver.F:       if(config_flags%tracer_opt > 0 )then
+./chem/chem_driver.F:       CALL wrf_debug(15,'only doing tracer transport in chem_driver')
+./chem/chem_driver.F:   tracer_select: SELECT CASE(config_flags%tracer_opt)
+./chem/chem_driver.F:    CASE (TRACER_SMOKE)
+./chem/chem_driver.F:       CALL wrf_debug(15,'tracer mode: 1 tracer for fires')
+./chem/chem_driver.F:    CASE (TRACER_TEST1)
+./chem/chem_driver.F:       CALL wrf_debug(15,'tracer mode: 8 tracers')
+./chem/chem_driver.F:    CASE (TRACER_TEST2)
+./chem/chem_driver.F:       CALL wrf_debug(15,'tracer mode: 8 tracers')
+./chem/chem_driver.F:    CASE (TRACER_TEST3)
+./chem/chem_driver.F:       CALL wrf_debug(15,'tracer mode: 10 tracers')
+./chem/chem_driver.F:    CASE (TRACER_TEST7)
+./chem/chem_driver.F:       CALL wrf_debug(15,'tracer mode: 145 smoke tracers')
+./chem/chem_driver.F:   END SELECT tracer_select
+./chem/chem_driver.F:              g,emis_seas,emis_dust,tracer,                                                &
+./chem/chem_driver.F:           config_flags%chem_opt /= CHEM_TRACER .and. &
+./chem/chem_driver.F:           config_flags%chem_opt /= CO2_TRACER  .and. &
+./chem/chem_driver.F:           config_flags%chem_opt /= GHG_TRACER ) then
+./chem/chem_driver.F:           config_flags%chem_opt /= CHEM_TRACER .and. &
+./chem/chem_driver.F:           config_flags%chem_opt /= CO2_TRACER  .and. &
+./chem/chem_driver.F:           config_flags%chem_opt /= GHG_TRACER  ) then
+./chem/chem_driver.F:                 rri,p_phy,chem,tracer,rho,dz8w,rh,grid%exch_h,grid%hfx,grid%dx,      & 
+./chem/chem_driver.F:        if (config_flags%tracer_opt > 0)then
+./chem/chem_driver.F:        call wrf_debug(15,'calling conv transport for tracers')
+./chem/chem_driver.F:             rho,grid%RAINCV_B,tracer,                               &
+./chem/chem_driver.F:             config_flags%ishallow,num_moist,0,num_tracer,0,config_flags%tracer_opt,  &
+./chem/chem_driver.F:! For the chemistry tracer mode, only emissions and vertical mixing are done.
+./chem/chem_driver.F:          config_flags%chem_opt /= CHEM_TRACER .and. &
+./chem/chem_driver.F:          config_flags%chem_opt /= CO2_TRACER  .and. &
+./chem/chem_driver.F:          config_flags%chem_opt /= GHG_TRACER ) then
+./chem/chem_driver.F:   tracer2: SELECT CASE(config_flags%tracer_opt)
+./chem/chem_driver.F:    CASE (TRACER_TEST1, TRACER_TEST2, TRACER_TEST3)
+./chem/chem_driver.F:       CALL wrf_debug(15,'tracer mode: reset some tracers')
+./chem/chem_driver.F:       call set_tracer(grid%dt,ktau,pbl_h,tracer,t_phy,         &
+./chem/chem_driver.F:                        config_flags%tracer_opt,num_tracer,     &
+./chem/chem_driver.F:   END SELECT tracer2
+./chem/chemics_init.F:     CASE (CO2_TRACER, GHG_TRACER )
+./chem/chemics_init.F:          config_flags%chem_opt == CO2_TRACER .or. &
+./chem/chemics_init.F:!write(6,*)'config_flags%chem_opt, CO2_TRACER', config_flags%chem_opt, CO2_TRACER
+./chem/chemics_init.F:if  ( config_flags%chem_opt==CO2_TRACER .OR. config_flags%chem_opt==GHG_TRACER )   then
+./chem/chemics_init.F:if (config_flags%chem_opt .EQ. GHG_TRACER) then
+./chem/chemics_init.F:!! CO2 mixing ratios for the background GHG tracers are set as a constant value.
+./chem/chemics_init.F:! CO2 tracers:
+./chem/chemics_init.F:            chem(i,k,j,p_co2_bck)=380.  ! background CO2 tracer
+./chem/chemics_init.F:! CO tracers:
+./chem/chemics_init.F:            chem(i,k,j,p_co_bck)=0.1  ! background CO tracer
+./chem/chemics_init.F:! CH4 tracers:
+./chem/chemics_init.F:           chem(i,k,j,p_ch4_bck)=1.77   ! background CH4 tracer
+./chem/dry_dep_driver.F:               p_phy,chem,tracer,rho_phy,dz8w,rh,exch_h,hfx,dx,           &  
+./chem/dry_dep_driver.F:   REAL, DIMENSION( ims:ime, kms:kme, jms:jme, num_tracer ),         &
+./chem/dry_dep_driver.F:         INTENT(INOUT ) ::                                 tracer
+./chem/dry_dep_driver.F:       IF( config_flags%chem_opt /= CHEM_TRACER    .and.                  &
+./chem/dry_dep_driver.F:           config_flags%chem_opt /= CO2_TRACER     .and.                  & 
+./chem/dry_dep_driver.F:           config_flags%chem_opt /= GHG_TRACER     .and.                  &
+./chem/dry_dep_driver.F:          !chemistry tracer mode.
+./chem/dry_dep_driver.F:!   need to be careful here with that dumm tracer in spot 1
+./chem/dry_dep_driver.F:       tracer_select: SELECT CASE(config_flags%tracer_opt)
+./chem/dry_dep_driver.F:       CASE (TRACER_SMOKE,TRACER_TEST1,TRACER_TEST2,TRACER_TEST7)
+./chem/dry_dep_driver.F:        CALL wrf_debug(15,'DOING TRACER MIXING, 1 SPECIE ONLY')
+./chem/dry_dep_driver.F:        do nv=2,num_tracer
+./chem/dry_dep_driver.F:            pblst(k)=max(epsilc,tracer(i,k,j,nv))
+./chem/dry_dep_driver.F:            tracer(i,k,j,nv)=max(epsilc,pblst(k))
+./chem/dry_dep_driver.F:       END SELECT tracer_select
+./chem/emissions_driver.F:         g,emis_seas,emis_dust,tracer,                                     &
+./chem/emissions_driver.F:   REAL, DIMENSION( ims:ime, kms:kme, jms:jme, num_tracer ),               &
+./chem/emissions_driver.F:         INTENT(INOUT ) ::                                   tracer
+./chem/emissions_driver.F:! Add for the GHG_tracer option
+./chem/emissions_driver.F:! stuff for ghg tracer
+./chem/emissions_driver.F:! end ghg tracer stuff
+./chem/emissions_driver.F:! we are doing the plumerise/fire emissions first, they may be needed for chem and tracer arrays
+./chem/emissions_driver.F:      tracer_select:  SELECT CASE(config_flags%tracer_opt)
+./chem/emissions_driver.F:      CASE (TRACER_SMOKE,TRACER_TEST2,TRACER_TEST7)
+./chem/emissions_driver.F:          CALL wrf_debug(15,'tracer fire emissions: calling biomassb, only CO')
+./chem/emissions_driver.F:! here for tracers only, set chem_opt to zero. Chem species are handled later!
+./chem/emissions_driver.F:       call add_emis_burn(id,dtstep,ktau,dz8w,rho_phy,tracer,&
+./chem/emissions_driver.F:            ebu,0,config_flags%tracer_opt,config_flags%biomass_burn_opt,     &
+./chem/emissions_driver.F:            num_tracer,ids,ide, jds,jde, kds,kde,                                   &
+./chem/emissions_driver.F:        CALL wrf_debug(15,'No tracer option selected')
+./chem/emissions_driver.F:      END SELECT tracer_select
+./chem/emissions_driver.F:    CASE (CHEM_TRACER)
+./chem/emissions_driver.F:    CASE(CO2_TRACER,GHG_TRACER)  ! for ghg_tracer package
+./chem/emissions_driver.F:            lnox_total=tracer(:,:,:,p_lnox_total),       &
+./chem/emissions_driver.F:            lnox_ic=tracer(:,:,:,p_lnox_ic),             &
+./chem/emissions_driver.F:            lnox_cg=tracer(:,:,:,p_lnox_cg)          &
+./chem/module_add_emiss_burn.F:            ebu,chem_opt,tracer_opt,biomass_burn_opt,                   &
+./chem/module_add_emiss_burn.F:                                  its,ite, jts,jte, kts,kte,tracer_opt
+./chem/module_add_emiss_burn.F:!tracer_opt has to come in as zero, if chem_opt is not =0!
+./chem/module_add_emiss_burn.F:      temiss_select:  SELECT CASE(tracer_opt)
+./chem/module_add_emiss_burn.F:         CASE (TRACER_SMOKE)
+./chem/module_add_emiss_burn.F:         CASE (TRACER_TEST2)
+./chem/module_add_emiss_burn.F:         CASE (TRACER_TEST7)
+./chem/module_add_emiss_burn.F:             call wrf_debug(15,'nothing done with burn emissions for tracers here')
+./chem/module_add_emiss_burn.F:        chem(i,k,j,p_tracer_1)  =  chem(i,k,j,p_tracer_1)                        &
+./chem/module_add_emiss_burn.F:        chem(i,k,j,p_tracer_1)  =  chem(i,k,j,p_tracer_1)                        &
+./chem/module_add_emiss_burn.F:      CASE (GHG_TRACER)
+./chem/module_aer_drydep.F:	    do ll = -2, ncomp_plustracer_aer(itype)
+./chem/module_aer_drydep.F:            do ll = -2, ncomp_plustracer_aer(itype)
+./chem/module_aerosols_sorgam.F:	    ncomp_aer_nontracer(itype) = ll
+./chem/module_cam_mam_calcsize.F:      real(r8), intent(in) :: q(pcols,pver,pcnst)  ! Tracer MR array 
+./chem/module_cam_mam_calcsize.F:      real(r8), target, intent(inout) :: qqcw(pcols,pver,pcnst) ! cloudborne tracer MR array 
+./chem/module_cam_mam_calcsize.F:      ! process-specific column tracer tendencies
+./chem/module_cam_mam_calcsize.F:      ! process-specific column tracer tendencies
+./chem/module_cam_mam_coag.F:                                            ! tracer mixing ratio (TMR) array
+./chem/module_cam_mam_gasaerexch.F:   real(r8), intent(inout) :: q(ncol,pver,pcnstxx) ! tracer mixing ratio (TMR) array
+./chem/module_cam_mam_gasaerexch.F:                                                   ! like q but for cloud-borner tracers
+./chem/module_cam_mam_gasaerexch.F:                                                   ! like dqdt_other but for cloud-borner tracers
+./chem/module_cam_mam_gasaerexch.F:! computes TMR (tracer mixing ratio) tendencies for gas condensation
+./chem/module_cam_mam_gasaerexch.F:   logical  :: dotendqqcw(pcnstxx)      ! like dotend but for cloud-borner tracers
+./chem/module_cam_mam_gasaerexch.F:   real(r8) :: dqqcwdt(ncol,pver,pcnstxx) ! like dqdt but for cloud-borner tracers
+./chem/module_cam_mam_gasaerexch.F:                              ! process-specific column tracer tendencies 
+./chem/module_cam_mam_gasaerexch.F:   real(r8), intent(in) :: q(ncol,pver,pcnstxx) ! Tracer array (mol,#/mol-air)
+./chem/module_cam_mam_init.F:    ncomp_plustracer_aer(:) = 0
+./chem/module_cam_mam_init.F:       ncomp_plustracer_aer(itype) = ncomp_aer(itype)
+./chem/module_cam_mam_mz_aerosols_intr.F:    use tracer_cnst,   only: get_cnst_data
+./chem/module_cam_mam_mz_aerosols_intr.F:    real(r8), target, intent(inout) :: qqcw(pcols,pver,pcnst) ! cloudborne tracer MR array 
+./chem/module_cam_mam_mz_aerosols_intr.F:    integer  :: m                                  ! tracer index
+./chem/module_cam_mam_mz_aerosols_intr.F:    integer :: mm                      ! tracer index
+./chem/module_cam_mam_mz_aerosols_intr.F:     use tracer_cnst,  only: num_tracer_cnst, tracer_cnst_flds
+./chem/module_cam_mam_mz_aerosols_intr.F:     do i = 1, num_tracer_cnst
+./chem/module_cam_mam_mz_aerosols_intr.F:        if ( trim(tracer_cnst_flds(i)) == dust_names(1) ) then
+./chem/module_cam_mam_newnuc.F:                                            ! tracer mixing ratio (TMR) array
+./chem/module_cam_mam_newnuc.F:                              ! process-specific column tracer tendencies
+./chem/module_cam_mam_rename.F:   real(r8), intent(in)    :: q(ncol,pver,pcnstxx) ! tracer mixing ratio array
+./chem/module_cam_mam_rename.F:                              ! process-specific column tracer tendencies 
+./chem/module_cam_mam_rename.F:! computes TMR (tracer mixing ratio) tendencies for "mode renaming"
+./chem/module_cam_mam_wetdep.F:                       evaps, cwat, tracer, deltat, &
+./chem/module_cam_mam_wetdep.F:         tracer(pcols,pver)     ! trace species
+./chem/module_cam_mam_wetdep.F:         ! is_strat_cloudborne = .true. if tracer is stratiform-cloudborne aerosol; else .false. 
+./chem/module_cam_mam_wetdep.F:         ! qqcw = strat-cloudborne aerosol corresponding to tracer when is_strat_cloudborne==.false.; else 0.0 
+./chem/module_cam_mam_wetdep.F:      real(r8) aqfrac               ! fraction of tracer in aqueous phase
+./chem/module_cam_mam_wetdep.F:      real(r8) gafrac               ! fraction of tracer in gas phasea
+./chem/module_cam_mam_wetdep.F:      real(r8) part                 !  partial pressure of tracer in atmospheres
+./chem/module_cam_mam_wetdep.F:      real(r8) scavab(pcols)        ! scavenged tracer flux from above (work array)
+./chem/module_cam_mam_wetdep.F:      real(r8) scavabc(pcols)       ! scavenged tracer flux from above (work array)
+./chem/module_cam_mam_wetdep.F:      real(r8) tracab(pcols)        ! column integrated tracer amount
+./chem/module_cam_mam_wetdep.F:      real(r8) tracer_incu
+./chem/module_cam_mam_wetdep.F:      real(r8) tracer_mean
+./chem/module_cam_mam_wetdep.F:      ! all the tracer is in the cloud water
+./chem/module_cam_mam_wetdep.F:      ! the amount of tracer which is pulled out.
+./chem/module_cam_mam_wetdep.F:            !            srcs1 =  cldt(i,k)*odds*tracer(i,k)*(1.-weight) &
+./chem/module_cam_mam_wetdep.F:            ! srcs1 =  cldv(i,k)*odds*tracer(i,k)*(1.-weight) &
+./chem/module_cam_mam_wetdep.F:            !srcs1 =  cldc(i,k)*odds*tracer(i,k)*(1.-weight) &
+./chem/module_cam_mam_wetdep.F:!           srcs1 = cldc(i,k)*fracp*tracer(i,k)*(1._r8-weight)/deltat ! liquid only
+./chem/module_cam_mam_wetdep.F:!           srcs1 = cldc(i,k)*fracp*tracer(i,k)/deltat             ! any condensation
+./chem/module_cam_mam_wetdep.F:               tracer_incu = f_act_conv(i,k)*(tracer(i,k)+& 
+./chem/module_cam_mam_wetdep.F:                             min(qqcw(i,k),tracer(i,k)*((cldt(i,k)-cldc(i,k))/max(0.01_r8,(1._r8-(cldt(i,k)-cldc(i,k)))))))              
+./chem/module_cam_mam_wetdep.F:               srcs1 = sol_factic(i,k)*cldc(i,k)*fracp*tracer_incu*(1._r8-weight)/deltat &  ! Liquid
+./chem/module_cam_mam_wetdep.F:                     + sol_factiic    *cldc(i,k)*fracp*tracer_incu*(weight)/deltat          ! Ice
+./chem/module_cam_mam_wetdep.F:            srcs1 = sol_factic(i,k)*cldc(i,k)*fracp*tracer(i,k)*(1._r8-weight)/deltat &  ! liquid
+./chem/module_cam_mam_wetdep.F:                 +  sol_factiic*cldc(i,k)*fracp*tracer(i,k)*(weight)/deltat      ! ice
+./chem/module_cam_mam_wetdep.F:               tracer_mean = tracer(i,k)*(1._r8-cldc(i,k)*f_act_conv(i,k))-cldc(i,k)*f_act_conv(i,k)*&
+./chem/module_cam_mam_wetdep.F:                             min(qqcw(i,k),tracer(i,k)*((cldt(i,k)-cldc(i,k))/max(0.01_r8,(1._r8-(cldt(i,k)-cldc(i,k))))))
+./chem/module_cam_mam_wetdep.F:               tracer_mean = max(0._r8,tracer_mean) 
+./chem/module_cam_mam_wetdep.F:               srcs2 = sol_factb *cldmabc(i)*odds*tracer_mean*(1._r8-weight)/deltat & ! Liquid
+./chem/module_cam_mam_wetdep.F:                     + sol_factbi*cldmabc(i)*odds*tracer_mean*(weight)/deltat         ! Ice
+./chem/module_cam_mam_wetdep.F:            srcs2 = sol_factb*cldmabc(i)*odds*tracer(i,k)*(1._r8-weight)/deltat & ! liquid
+./chem/module_cam_mam_wetdep.F:                 +  sol_factbi*cldmabc(i)*odds*tracer(i,k)*(weight)/deltat    !ice
+./chem/module_cam_mam_wetdep.F:               srcs1 = sol_facti *fracp*tracer(i,k)/deltat*(1._r8-weight) &  ! Liquid
+./chem/module_cam_mam_wetdep.F:                     + sol_factii*fracp*tracer(i,k)/deltat*(weight)          ! Ice
+./chem/module_cam_mam_wetdep.F:            ! assume the corresponding amnt of tracer is removed
+./chem/module_cam_mam_wetdep.F:            !            srcs1 = (cldt(i,k)-cldc(i,k))*fracp*tracer(i,k)/deltat
+./chem/module_cam_mam_wetdep.F:            !            srcs1 = cldv(i,k)*fracp*tracer(i,k)/deltat &
+./chem/module_cam_mam_wetdep.F:!           srcs1 = cldt(i,k)*fracp*tracer(i,k)/deltat            ! all condensate
+./chem/module_cam_mam_wetdep.F:            srcs1 = sol_facti*(cldt(i,k)-cldc(i,k))*fracp*tracer(i,k)/deltat*(1._r8-weight) &  ! liquid
+./chem/module_cam_mam_wetdep.F:                 + sol_factii*(cldt(i,k)-cldc(i,k))*fracp*tracer(i,k)/deltat*(weight)       ! ice
+./chem/module_cam_mam_wetdep.F:               srcs2 = sol_factb *cldmabs(i)*odds*tracer_mean*(1._r8-weight)/deltat & ! Liquid
+./chem/module_cam_mam_wetdep.F:                     + sol_factbi*cldmabs(i)*odds*tracer_mean*(weight)/deltat         ! Ice
+./chem/module_cam_mam_wetdep.F:            srcs2 =sol_factb*(cldmabs(i)*odds) *tracer(i,k)*(1._r8-weight)/deltat & ! liquid
+./chem/module_cam_mam_wetdep.F:                 + sol_factbi*(cldmabs(i)*odds) *tracer(i,k)*(weight)/deltat       ! ice
+./chem/module_cam_mam_wetdep.F:            rat(i) = tracer(i,k)/max(deltat*(srcc+srcs),1.e-36_r8)
+./chem/module_cam_mam_wetdep.F:            fracp = deltat*srct(i)/max(cldmabs(i)*tracer(i,k),1.e-36_r8)  ! amount removed
+./chem/module_cam_mam_wetdep.F:            ! tend is all tracer removed by scavenging, plus all re-appearing from evaporation above
+./chem/module_cam_mam_wetdep.F:            dblchek(i) = tracer(i,k) + deltat*scavt(i,k)
+./chem/module_cam_mam_wetdep.F:            tracab(i) = tracab(i) + tracer(i,k)*pdel(i,k)/gravit
+./chem/module_cam_mam_wetdep.F:                  write(iulog,*) ' wetdapa: negative value ', i, k, tracer(i,k), &
+./chem/module_cam_mam_wetdep.F:                       evaps, cwat, tracer, deltat, &
+./chem/module_cam_mam_wetdep.F:         tracer(pcols,pver)     ! trace species
+./chem/module_cam_mam_wetdep.F:      real(r8) aqfrac               ! fraction of tracer in aqueous phase
+./chem/module_cam_mam_wetdep.F:      real(r8) gafrac               ! fraction of tracer in gas phasea
+./chem/module_cam_mam_wetdep.F:      real(r8) part                 !  partial pressure of tracer in atmospheres
+./chem/module_cam_mam_wetdep.F:      real(r8) scavab(pcols)        ! scavenged tracer flux from above (work array)
+./chem/module_cam_mam_wetdep.F:      real(r8) scavabc(pcols)       ! scavenged tracer flux from above (work array)
+./chem/module_cam_mam_wetdep.F:      real(r8) tracab(pcols)        ! column integrated tracer amount
+./chem/module_cam_mam_wetdep.F:      ! all the tracer is in the cloud water
+./chem/module_cam_mam_wetdep.F:      ! the amount of tracer which is pulled out.
+./chem/module_cam_mam_wetdep.F:            !            srcs1 =  cldt(i,k)*odds*tracer(i,k)*(1.-weight) &
+./chem/module_cam_mam_wetdep.F:            ! srcs1 =  cldv(i,k)*odds*tracer(i,k)*(1.-weight) &
+./chem/module_cam_mam_wetdep.F:            !srcs1 =  cldc(i,k)*odds*tracer(i,k)*(1.-weight) &
+./chem/module_cam_mam_wetdep.F:!           srcs1 = cldc(i,k)*fracp*tracer(i,k)*(1._r8-weight)/deltat ! liquid only
+./chem/module_cam_mam_wetdep.F:!           srcs1 = cldc(i,k)*fracp*tracer(i,k)/deltat             ! any condensation
+./chem/module_cam_mam_wetdep.F:            srcs1 = sol_factic(i,k)*cldt(i,k)*fracp*tracer(i,k)*(1._r8-weight)/deltat &  ! liquid
+./chem/module_cam_mam_wetdep.F:                 +  sol_factiic*cldt(i,k)*fracp*tracer(i,k)*(weight)/deltat      ! ice
+./chem/module_cam_mam_wetdep.F:            srcs2 = sol_factb*cldmabc(i)*odds*tracer(i,k)*(1._r8-weight)/deltat & ! liquid
+./chem/module_cam_mam_wetdep.F:                 +  sol_factbi*cldmabc(i)*odds*tracer(i,k)*(weight)/deltat    !ice
+./chem/module_cam_mam_wetdep.F:            ! assume the corresponding amnt of tracer is removed
+./chem/module_cam_mam_wetdep.F:            !            srcs1 = (cldt(i,k)-cldc(i,k))*fracp*tracer(i,k)/deltat
+./chem/module_cam_mam_wetdep.F:            !            srcs1 = cldv(i,k)*fracp*tracer(i,k)/deltat &
+./chem/module_cam_mam_wetdep.F:!           srcs1 = cldt(i,k)*fracp*tracer(i,k)/deltat            ! all condensate
+./chem/module_cam_mam_wetdep.F:            srcs1 = sol_facti*cldt(i,k)*fracp*tracer(i,k)/deltat*(1._r8-weight) &  ! liquid
+./chem/module_cam_mam_wetdep.F:                 + sol_factii*cldt(i,k)*fracp*tracer(i,k)/deltat*(weight)       ! ice
+./chem/module_cam_mam_wetdep.F:            srcs2 =sol_factb*(cldmabs(i)*odds) *tracer(i,k)*(1._r8-weight)/deltat & ! liquid
+./chem/module_cam_mam_wetdep.F:                 + sol_factbi*(cldmabs(i)*odds) *tracer(i,k)*(weight)/deltat       ! ice
+./chem/module_cam_mam_wetdep.F:            rat(i) = tracer(i,k)/max(deltat*(srcc+srcs),1.e-36_r8)
+./chem/module_cam_mam_wetdep.F:            fracp = deltat*srct(i)/max(cldmabs(i)*tracer(i,k),1.e-36_r8)  ! amount removed
+./chem/module_cam_mam_wetdep.F:            ! tend is all tracer removed by scavenging, plus all re-appearing from evaporation above
+./chem/module_cam_mam_wetdep.F:            dblchek(i) = tracer(i,k) + deltat*scavt(i,k)
+./chem/module_cam_mam_wetdep.F:            tracab(i) = tracab(i) + tracer(i,k)*pdel(i,k)/gravit
+./chem/module_cam_mam_wetdep.F:                  write(iulog,*) ' wetdapa: negative value ', i, k, tracer(i,k), &
+./chem/module_cam_mam_wetdep.F:                       rain, cwat, tracer, deltat, molwt, &
+./chem/module_cam_mam_wetdep.F:         tracer(pcols,pver),   &! trace species
+./chem/module_cam_mam_wetdep.F:      real(r8) aqfrac               ! fraction of tracer in aqueous phase
+./chem/module_cam_mam_wetdep.F:      real(r8) gafrac               ! fraction of tracer in gas phasea
+./chem/module_cam_mam_wetdep.F:      real(r8) part                 !  partial pressure of tracer in atmospheres
+./chem/module_cam_mam_wetdep.F:      real(r8) scavab(pcols)        ! scavenged tracer flux from above (work array)
+./chem/module_cam_mam_wetdep.F:      real(r8) scavabc(pcols)       ! scavenged tracer flux from above (work array)
+./chem/module_cam_mam_wetdep.F:      real(r8) scavmax              ! an estimate of the max tracer avail for removal
+./chem/module_cam_mam_wetdep.F:            ! partial pressure of the tracer in the gridbox in atmospheres
+./chem/module_cam_mam_wetdep.F:            part = patm*gafrac*tracer(i,k)*molwta/molwt
+./chem/module_cam_mam_wetdep.F:            ! use henrys law to give moles tracer /liter of water
+./chem/module_cam_mam_wetdep.F:            ! then convert to kg tracer /liter of water (kg tracer / kg water)
+./chem/module_cam_mam_wetdep.F:            !                  scavmax = scavab(i)+tracer(i,k)*cldt(i,k)/deltat*pdog
+./chem/module_cam_mam_wetdep.F:            scavmax = scavab(i)+tracer(i,k)*cldv(i,k)/deltat*pdog
+./chem/module_cam_mam_wetdep.F:            ! flux of tracer by incloud processes
+./chem/module_cam_mam_wetdep.F:            ! flux of tracer by below cloud processes
+./chem/module_cam_mam_wetdep.F:            scavt1 = max(scavt1,-tracer(i,k)*cldv(i,k)/deltat)
+./chem/module_cam_mam_wetdep.F:            !            scavlimt = -tracer(i,k)*cldv(i,k)
+./chem/module_cbm4_initmixrats.F:! advected chemical tracers
+./chem/module_cbmz.F:! advected chemical tracers
+./chem/module_cbmz_initmixrats.F:! advected chemical tracers
+./chem/module_chem_plumerise_scalar.F:	      !use this in case the emission src is tracer density
+./chem/module_chem_plumerise_scalar.F:	      !use this in case the emission src is tracer density
+./chem/module_chem_plumerise_scalar.F:							 dzi    !use this in case the emission src is tracer density
+./chem/module_ctrans_grell.F:           tracer,tracert,tracert3
+./chem/module_ctrans_grell.F:         tracer(i,k,nv)=max(epsilc,chem(i,k,j,nv))
+./chem/module_ctrans_grell.F:         tracert(i,k,nv)=0.
+./chem/module_ctrans_grell.F:         tracert3(i,k,nv)=0.
+./chem/module_ctrans_grell.F:          print *,k,pret(i),tracer(i,k,npr),p(i,k),z(i,k,j)
+./chem/module_ctrans_grell.F:           tracer,j,AAEQ,T,Q,TER11,PRET,P,tracert,tracert3,    &
+./chem/module_ctrans_grell.F:                   tracert(i,k,nv)=0.
+./chem/module_ctrans_grell.F:        CALL neg_check_ct('shallow',pret,ktop3,epsilc,dt,tracer,tracert3,iopt,num_chem,   &
+./chem/module_ctrans_grell.F:                  chem(i,k,j,nv)=max(epsilc,chem(i,k,j,nv)+tracert3(i,k,nv)*dt)
+./chem/module_ctrans_grell.F:      CALL neg_check_ct('deep',pret,ktop,epsilc,dt,tracer,tracert,iopt,num_chem,  &
+./chem/module_ctrans_grell.F:                   chem(i,k,j,nv)=max(epsilc,chem(i,k,j,nv)+tracert(i,k,nv)*dt)
+./chem/module_ctrans_grell.F:                        cu_co_ten(i,k,j)=tracert(i,k,npr)*dt
+./chem/module_ctrans_grell.F:                   tracert(i,k,nv)=0.
+./chem/module_ctrans_grell.F:   if(chemopt > 0) then  ! skip for tracers (chemopt=0)
+./chem/module_ctrans_grell.F:   SUBROUTINE CUP_ct(ktop,k23,kbcon3,ktop3,xmb3,tracer,J,AAEQ,T,Q,Z1,  &
+./chem/module_ctrans_grell.F:              PRE,P,tracert,tracert3,hstary,DTIME,PSUR,US,VS,TCRIT,    &
+./chem/module_ctrans_grell.F:  !tracert = output temp tendency (per s)
+./chem/module_ctrans_grell.F:        tracert,tracer,tracert3
+./chem/module_ctrans_grell.F:      call cup_env_clev_tr(tracer,tre_cup,num_chem,ierr, &
+./chem/module_ctrans_grell.F:!!!!!   NOW WE HAVE EVREYTHING TO CALCULATE TRACER TRANSPORT AND WET DEPOSITION !!!
+./chem/module_ctrans_grell.F:!--- calculate incloud tracer distribution
+./chem/module_ctrans_grell.F:!      if(j.eq.jpr)print *,'calling up_tracer'
+./chem/module_ctrans_grell.F:       call cup_up_tracer(ierr,tcrit,t,pre,z_cup,p,tracer,tre_cup,tr_up,tr_pw, &
+./chem/module_ctrans_grell.F:!      if(j.eq.jpr)print *,'called up_tracer'
+./chem/module_ctrans_grell.F:       call cup_up_tracer(ierr5,tcrit,t,pre,z_cup,p,tracer,tre_cup,tr3_up,tr3_pw, &
+./chem/module_ctrans_grell.F:           tracer,tracert3,j,mentrd_rate,zu3,g,xmb3,                &
+./chem/module_ctrans_grell.F:       call cup_dd_tracer(ierr,z_cup,qrcd,tracer,tre_cup,tr_up,tr_dd, &
+./chem/module_ctrans_grell.F:       if(j.eq.jpr)print *,'called dd_tracer'
+./chem/module_ctrans_grell.F:           zd,cdd,tracer,tracert,j,mentrd_rate,z,g,xmb, &
+./chem/module_ctrans_grell.F:           tracer,tracert,j,mentrd_rate,zu,g,xmb,                &
+./chem/module_ctrans_grell.F:          print *,k,tracer(i,k,npr),tracert(i,k,npr)
+./chem/module_ctrans_grell.F:              tr_dd,edt,zd,cdd,tracer,tracert,j,mentrd_rate,z,g,xmb,     &
+./chem/module_ctrans_grell.F:        tracert
+./chem/module_ctrans_grell.F:        tre_cup,tracer,tr_dd
+./chem/module_ctrans_grell.F:      tracert=0.
+./chem/module_ctrans_grell.F:      tracert(I,1,nv)=(detdo1*.5*(tr_dd(i,1,nv)+tr_dd(i,2,nv)) &
+./chem/module_ctrans_grell.F:                 -entdo*tracer(i,1,nv))*g/dp*xmb(i)
+./chem/module_ctrans_grell.F:      if(j.eq.jpr.and.i.eq.ipr)print *,'in cup dellabot ',tracert(I,1,npr), &
+./chem/module_ctrans_grell.F:        detdo1,detdo2,subin,entdo,tr_dd(i,1,npr),tr_dd(i,2,npr),tracer(i,1,npr)
+./chem/module_ctrans_grell.F:              tracer,tracert,j,mentrd_rate,zu,g,xmb,                       &
+./chem/module_ctrans_grell.F:        tracert
+./chem/module_ctrans_grell.F:        tr_up,tr_dd,tre_cup,tracer
+./chem/module_ctrans_grell.F:          tracert(i,k,nv)=0.
+./chem/module_ctrans_grell.F:!        tracert(i,k,nv)=(subin*tre_cup(i,k+1,nv) &
+./chem/module_ctrans_grell.F:         tracert(i,k,nv)=(subin*tracer(i,k+1,nv) &
+./chem/module_ctrans_grell.F:                    -subdown*tracer(i,k,nv) &
+./chem/module_ctrans_grell.F:                    -entup*tracer(i,k,nv) &
+./chem/module_ctrans_grell.F:                    -entdo*tracer(i,k,nv) &
+./chem/module_ctrans_grell.F:         print *,k,tracert(i,k,npr),subin*tre_cup(i,k+1,npr),subdown*tre_cup(i,k,npr), &
+./chem/module_ctrans_grell.F:                entup*tracer(i,k,npr),entdo*tracer(i,k,npr)
+./chem/module_ctrans_grell.F:   SUBROUTINE cup_env_clev_tr(tracer,tre_cup,num_chem,ierr, &
+./chem/module_ctrans_grell.F:        tracer
+./chem/module_ctrans_grell.F:        tre_cup(i,k,nv)=.5*(tracer(i,k-1,nv)+tracer(i,k,nv))
+./chem/module_ctrans_grell.F:        tre_cup(i,kts,nv)=tracer(i,kts,nv)
+./chem/module_ctrans_grell.F:   SUBROUTINE  cup_up_tracer(ierr,tcrit,t,pre,z_cup,p,tracer,tre_cup,tr_up, &
+./chem/module_ctrans_grell.F:        tre_cup,tracer
+./chem/module_ctrans_grell.F:      ! happens (kg/kg). tr_up would be the concentration if tracers were conserved.
+./chem/module_ctrans_grell.F:          DZ*tracer(i,K-1,nv))/(1.+mentr_rate*DZ-.5*cd(i,k)*dz)
+./chem/module_ctrans_grell.F:END subroutine cup_up_tracer
+./chem/module_ctrans_grell.F:  ! moles tracer m-3_air
+./chem/module_ctrans_grell.F:  ! moles tracer m-3 (air)
+./chem/module_ctrans_grell.F:  SUBROUTINE  cup_dd_tracer(ierr,z_cup,qrcd,tracer,tre_cup,tr_up,tr_dd, &
+./chem/module_ctrans_grell.F:        tre_cup,tracer,tr_pw
+./chem/module_ctrans_grell.F:      ! Initialize the tracer amount that evaporated from rain water:
+./chem/module_ctrans_grell.F:      ! Calculate wet deposition with re-evaporation (based on wet scavenging in cup_up_tracer);
+./chem/module_ctrans_grell.F:              ! Start with initializing the condensate with the tracer amount in rain water on this level:
+./chem/module_ctrans_grell.F:                ! Evaporated tracer amount at the current level:
+./chem/module_ctrans_grell.F:                ! Accumulate the evaporated tracer amount:
+./chem/module_ctrans_grell.F:                ! Remove the evaporated tracer amount from the condensate:
+./chem/module_ctrans_grell.F:            ! tracer amount in rain water - evaporated tracer amount:
+./chem/module_ctrans_grell.F:      ! In downdraft, do only transport of tracers
+./chem/module_ctrans_grell.F:            tr_dd(i,jmin(i):ktf,nv)=tre_cup(i,jmin(i):ktf,nv) ! Tracer amount in downdraft
+./chem/module_ctrans_grell.F:               +entr*DZ*tracer(i,ki,nv) &
+./chem/module_ctrans_grell.F:END subroutine cup_dd_tracer
+./chem/module_ctrans_grell.F:     real :: tracermin,tracermax,thresh,qmem,qmemf,qmem2,qtest,qmem1
+./chem/module_ctrans_grell.F:! tendencies. Use iopt=0 to test for each tracer seperately, iopt=1
+./chem/module_ctrans_grell.F:         tracermin=q(i,kts,nv)
+./chem/module_ctrans_grell.F:         tracermax=q(i,kts,nv)
+./chem/module_ctrans_grell.F:           tracermin=min(tracermin,q(i,k,nv))
+./chem/module_ctrans_grell.F:           tracermax=max(tracermax,q(i,k,nv))
+./chem/module_ctrans_grell.F:         tracermin=max(tracermin,thresh)
+./chem/module_ctrans_grell.F:! tracer tendency
+./chem/module_ctrans_grell.F:               if(qtest.lt.tracermin)then
+./chem/module_ctrans_grell.F:                    qmem2=(tracermin-q(i,k,nv))/dt
+./chem/module_ctrans_grell.F:! tracer tendency
+./chem/module_ctrans_grell.F:               if(qtest.gt.tracermax)then
+./chem/module_ctrans_grell.F:                    qmem2=(tracermax-q(i,k,nv))/dt
+./chem/module_ctrans_grell.F:! tracer tendency
+./chem/module_data_gocartchem.F:  ! tracer info
+./chem/module_data_gocartchem.F:  ! Tracer index:
+./chem/module_data_mosaic_asect.F:!   ncomp_plustracer_aer(t) = number of "regular" plus "tracer"
+./chem/module_data_mosaic_asect.F:!	"Tracer" components are optional, and can be used to track source 
+./chem/module_data_mosaic_asect.F:!	both regular and tracer components.]
+./chem/module_data_mosaic_asect.F:      	  ncomp_plustracer_aer( maxd_atype ),   &
+./chem/module_data_mosaic_asect.F:!   the different aerosol chemical (or tracer) components
+./chem/module_data_soa_vbs.F:!   ncomp_aer_nontracer(t) = number of "non-tracer" chemical components while in gchm code
+./chem/module_data_soa_vbs.F:      	  ncomp_aer_nontracer( maxd_atype ),   &
+./chem/module_data_sorgam.F:!   ncomp_aer_nontracer(t) = number of "non-tracer" chemical components while in gchm code
+./chem/module_data_sorgam.F:      	  ncomp_aer_nontracer( maxd_atype ),   &
+./chem/module_ghg_fluxes.F:! Beck and Ahmadov et al., (2012): module_ghg_fluxes: A new module in WRF-CHEM for the passive tracer
+./chem/module_ghg_fluxes.F:! For the GHG_TRACER option only
+./chem/module_ghg_fluxes.F:IF(config_flags%chem_opt==GHG_TRACER) THEN
+./chem/module_gocart_aerosols.F:! **  For tracers with dry deposition, the loss rate of dry dep is combined **
+./chem/module_gocart_chem.F:! **  Chemistry subroutine.  For tracers with dry deposition, the loss      **
+./chem/module_gocart_dust.F:! REAL*8, TARGET :: tcms(imx,jmx,lmx,nmx) ! tracer mass (kg; kgS for sulfur case)
+./chem/module_gocart_seasalt.F:  REAL*8, TARGET :: tcms(imx,jmx,lmx,nmx) ! tracer mass (kg; kgS for sulfur case)
+./chem/module_gocart_settling.F:! Settling velocity (m/s) for each tracer (Stokes Law)
+./chem/module_input_chem_data.F:        GOCARTRACM_KPP, GOCARTRADM2,GOCARTRADM2_KPP,CHEM_TRACER, CHEM_TRACE2)
+./chem/module_input_chem_data.F: case (CO2_TRACER,GHG_TRACER)
+./chem/module_input_chem_data.F:   ! be set to match the values in bdy_chem_value_tracer so that the boundaries
+./chem/module_input_chem_data.F:   IF ( si_grid%chem_opt == CHEM_TRACER ) THEN
+./chem/module_input_chem_data.F:      si_grid%chem(ims:ime,kms:kme,jms:jme,p_TRACER_1 ) = 0.08
+./chem/module_input_chem_data.F:   ELSE IF ( si_grid%chem_opt==CO2_TRACER .OR. si_grid%chem_opt==GHG_TRACER ) THEN
+./chem/module_input_chem_data.F:  SUBROUTINE bdy_chem_value_tracer ( chem, nch )
+./chem/module_input_chem_data.F:! species when chem_opt==CHEM_TRACER. Typically, the boundary values
+./chem/module_input_chem_data.F:    if( nch .eq. p_tracer_1  ) then
+./chem/module_input_chem_data.F:  END SUBROUTINE bdy_chem_value_tracer
+./chem/module_input_chem_data.F:!   5=tracer mode
+./chem/module_input_chem_data.F:      else if (config_flags%chem_opt == CHEM_TRACER) then
+./chem/module_input_chem_data.F:      else if (config_flags%chem_opt==CO2_TRACER .OR. config_flags%chem_opt==GHG_TRACER) then
+./chem/module_input_chem_data.F:!          print 90010, '_bdy_tracer for ic=', ic, i_bdy_method
+./chem/module_input_chem_data.F:                   CALL bdy_chem_value_tracer ( chem(i,k,j), ic )
+./chem/module_input_chem_data.F:                   CALL bdy_chem_value_tracer ( chem(i,k,j), ic )
+./chem/module_input_chem_data.F:                   CALL bdy_chem_value_tracer ( chem(i,k,j), ic )
+./chem/module_input_chem_data.F:                   CALL bdy_chem_value_tracer ( chem(i,k,j), ic )
+./chem/module_input_chem_data.F:     case (CHEM_TRACER)
+./chem/module_input_chem_data.F:        get_last_gas = p_tracer_1
+./chem/module_input_chem_data.F:     case (CO2_TRACER,GHG_TRACER) ! No gas chemistry or deposition for GHGs
+./chem/module_input_tracer_data.F:MODULE module_input_tracer_data
+./chem/module_input_tracer_data.F:   REAL, PARAMETER:: tracer_bv_def = 1.e-30
+./chem/module_input_tracer_data.F:   REAL, PARAMETER:: tracer_bv_one = 1.0
+./chem/module_input_tracer_data.F:END MODULE module_input_tracer_data
+./chem/module_input_tracer.F:! This module contains routines to initialize tracers, handle boundary conditions
+./chem/module_input_tracer.F:! and other stuff related to tracers. As of WRFV3.2 it will users should compile 
+./chem/module_input_tracer.F:! WRF-Chem for tracer runs, if they want full dispersion. Only when 
+./chem/module_input_tracer.F:! When compiled with WRF_CHEM, tracer transport should work properly with nesting or
+./chem/module_input_tracer.F:! TRACER_TEST1 will partially work (no boundary conditions, 
+./chem/module_input_tracer.F:! Options for TRACER_TEST1 and TRACER_TEST2 supplied by Jeff Lee (NCAR)
+./chem/module_input_tracer.F:! Current tracer options:
+./chem/module_input_tracer.F:!   (1) TRACER_SMOKE: This needs the biomass burning module to also be active. 
+./chem/module_input_tracer.F:!       It will then use smoke (CO emissions from fire) as tracer. One
+./chem/module_input_tracer.F:!   (2) TRACER_TEST1 and TRACER_TEST2: 8 tracers, the only difference inbetween 
+./chem/module_input_tracer.F:!       CO emissions from fire for TRACER_TEST2. The other tracers are defined as:
+./chem/module_input_tracer.F:!            tr17_1 : horizontal boundaries tracer
+./chem/module_input_tracer.F:!            tr17_2 : horizontal boundaries tracer decaying with e-folding time of 1 day
+./chem/module_input_tracer.F:!            tr17_3 : surface tracer (smoke for TRACER_TEST2)
+./chem/module_input_tracer.F:!            tr17_4 : surface tracer (smoke for TRACER_TEST2)
+./chem/module_input_tracer.F:!            tr17_5 : stratosphere tracer
+./chem/module_input_tracer.F:!            tr17_6 : stratosphere tracer decaying with e-folding time of 1 day
+./chem/module_input_tracer.F:!            tr17_7 : boundary layer tracer     
+./chem/module_input_tracer.F:!            tr17_8 : boundary layer tracer decaying with e-folding time of 1 day
+./chem/module_input_tracer.F:MODULE module_input_tracer
+./chem/module_input_tracer.F:USE module_input_tracer_data
+./chem/module_input_tracer.F:USE module_state_description, only:tracer_smoke,tracer_test1,tracer_test2,tracer_test7,param_first_scalar,p_tr17_1,p_tr17_2,p_tr17_3,p_tr17_4,p_tr17_5,p_tr17_6,p_tr17_7,p_tr17_8
+./chem/module_input_tracer.F:USE module_state_description, only:tracer_test1,tracer_test2,param_first_scalar,p_tr17_1,p_tr17_2,p_tr17_3,p_tr17_4,p_tr17_5,p_tr17_6,p_tr17_7,p_tr17_8
+./chem/module_input_tracer.F:   SUBROUTINE initialize_tracer (chem,chem_in_opt,         &
+./chem/module_input_tracer.F:                                       tracer_opt,num_chem,&
+./chem/module_input_tracer.F:      INTEGER,      INTENT(IN   )    :: chem_in_opt,tracer_opt,num_chem
+./chem/module_input_tracer.F:      if     (tracer_opt == TRACER_TEST1)then
+./chem/module_input_tracer.F:      else if(tracer_opt == TRACER_TEST2)then
+./chem/module_input_tracer.F:      else if(tracer_opt == TRACER_SMOKE)then
+./chem/module_input_tracer.F:      else if(tracer_opt == TRACER_TEST7)then
+./chem/module_input_tracer.F:   END SUBROUTINE initialize_tracer
+./chem/module_input_tracer.F:   SUBROUTINE flow_dep_bdy_tracer  (  chem,                                       &
+./chem/module_input_tracer.F:                               u, v, tracer_opt, alt, & 
+./chem/module_input_tracer.F:      INTEGER,      INTENT(IN   )    :: tracer_opt
+./chem/module_input_tracer.F:        if (tracer_opt == TRACER_TEST1 ) then
+./chem/module_input_tracer.F:        if (tracer_opt == TRACER_TEST2 ) then
+./chem/module_input_tracer.F:        if (tracer_opt == TRACER_SMOKE ) then
+./chem/module_input_tracer.F:        if (tracer_opt == TRACER_TEST7 ) then
+./chem/module_input_tracer.F:                   chem(i,k,j) = tracer_bv_def
+./chem/module_input_tracer.F:                      chem(i,k,j)= tracer_bv_one
+./chem/module_input_tracer.F:                      chem(i,k,j)= tracer_bv_def
+./chem/module_input_tracer.F:                   CALL bdy_tracer_value ( chem(i,k,j),chem_bys(i,k,1),chem_btys(i,k,1),dt,ic)
+./chem/module_input_tracer.F:                   chem(i,k,j) = tracer_bv_def
+./chem/module_input_tracer.F:                   chem(i,k,j) = tracer_bv_def
+./chem/module_input_tracer.F:                      chem(i,k,j)= tracer_bv_one
+./chem/module_input_tracer.F:                      chem(i,k,j)= tracer_bv_def
+./chem/module_input_tracer.F:                   CALL bdy_tracer_value ( chem(i,k,j),chem_bye(i,k,1),chem_btye(i,k,1),dt,ic)
+./chem/module_input_tracer.F:                   chem(i,k,j) = tracer_bv_def
+./chem/module_input_tracer.F:                   chem(i,k,j) = tracer_bv_def
+./chem/module_input_tracer.F:                      chem(i,k,j)= tracer_bv_one
+./chem/module_input_tracer.F:                      chem(i,k,j)= tracer_bv_def
+./chem/module_input_tracer.F:                   CALL bdy_tracer_value ( chem(i,k,j),chem_bxs(j,k,1),chem_btxs(j,k,1),dt,ic)   
+./chem/module_input_tracer.F:                   chem(i,k,j) = tracer_bv_def
+./chem/module_input_tracer.F:                   chem(i,k,j) = tracer_bv_def
+./chem/module_input_tracer.F:                      chem(i,k,j)= tracer_bv_one
+./chem/module_input_tracer.F:                      chem(i,k,j)= tracer_bv_def
+./chem/module_input_tracer.F:                   CALL bdy_tracer_value ( chem(i,k,j),chem_bxe(j,k,1),chem_btxe(j,k,1),dt,ic)
+./chem/module_input_tracer.F:                   chem(i,k,j) = tracer_bv_def
+./chem/module_input_tracer.F:   END SUBROUTINE flow_dep_bdy_tracer
+./chem/module_input_tracer.F:   SUBROUTINE flow_dep_bdy_tracer  (  chem, chem_b,chem_bt,dt,                    &
+./chem/module_input_tracer.F:                               u, v, tracer_opt, alt, & 
+./chem/module_input_tracer.F:      INTEGER,      INTENT(IN   )    :: tracer_opt
+./chem/module_input_tracer.F:      real       :: tracer_bv_def
+./chem/module_input_tracer.F:      tracer_bv_def = conmin
+./chem/module_input_tracer.F:        if (config_flags%tracer_opt == TRACER_SMOKE ) then
+./chem/module_input_tracer.F:                   CALL bdy_tracer_value ( chem(i,k,j),chem_b(i,k,1,P_YSB),chem_bt(i,k,1,P_YSB),dt,ic)
+./chem/module_input_tracer.F:                   chem(i,k,j) = tracer_bv_def
+./chem/module_input_tracer.F:                   CALL bdy_tracer_value ( chem(i,k,j),chem_b(i,k,1,P_YEB),chem_bt(i,k,1,P_YEB),dt,ic)
+./chem/module_input_tracer.F:                   chem(i,k,j) = tracer_bv_def
+./chem/module_input_tracer.F:                   CALL bdy_tracer_value ( chem(i,k,j),chem_b(j,k,1,P_XSB),chem_bt(j,k,1,P_XSB),dt,ic)
+./chem/module_input_tracer.F:                   chem(i,k,j) = tracer_bv_def
+./chem/module_input_tracer.F:                   CALL bdy_tracer_value ( chem(i,k,j),chem_b(j,k,1,P_XEB),chem_bt(j,k,1,P_XEB),dt,ic)
+./chem/module_input_tracer.F:                   chem(i,k,j) = tracer_bv_def
+./chem/module_input_tracer.F:   END SUBROUTINE flow_dep_bdy_tracer
+./chem/module_input_tracer.F:   SUBROUTINE set_tracer(dtstep,ktau,pbl_h,tracer,t,tracer_opt,num_tracer,&
+./chem/module_input_tracer.F:      INTEGER,      INTENT(IN   )    :: ktau,tracer_opt,num_tracer
+./chem/module_input_tracer.F:      REAL,  DIMENSION(ims:ime,kms:kme,jms:jme,num_tracer ), INTENT(INOUT) :: tracer
+./chem/module_input_tracer.F:! this is for tracer options tracer_test1 and tracer_test2
+./chem/module_input_tracer.F:    tracer(its:ite,kts:kte,jts:jte,p_tr17_2) = &
+./chem/module_input_tracer.F:       tracer(its:ite,kts:kte,jts:jte,p_tr17_2) * (1. - factor_decay)
+./chem/module_input_tracer.F:    tracer(its:ite,kts:kte,jts:jte,p_tr17_4) = &
+./chem/module_input_tracer.F:       tracer(its:ite,kts:kte,jts:jte,p_tr17_4) * (1. - factor_decay)
+./chem/module_input_tracer.F:    tracer(its:ite,kts:kte,jts:jte,p_tr17_6) = &
+./chem/module_input_tracer.F:       tracer(its:ite,kts:kte,jts:jte,p_tr17_6) * (1. - factor_decay)
+./chem/module_input_tracer.F:    tracer(its:ite,kts:kte,jts:jte,p_tr17_8) = &
+./chem/module_input_tracer.F:       tracer(its:ite,kts:kte,jts:jte,p_tr17_8) * (1. - factor_decay)
+./chem/module_input_tracer.F:!-- every time step, every grid point, restore some tracer
+./chem/module_input_tracer.F:    if(tracer_opt == TRACER_TEST1)then   
+./chem/module_input_tracer.F:       tracer(its:ite,kts,jts:jte,p_tr17_3)     = 1.0
+./chem/module_input_tracer.F:       tracer(its:ite,kts,jts:jte,p_tr17_4)     = 1.0
+./chem/module_input_tracer.F:       tracer(i,count_trop:kte,j,p_tr17_5) = 1.0
+./chem/module_input_tracer.F:       tracer(i,count_trop:kte,j,p_tr17_6) = 1.0
+./chem/module_input_tracer.F:          tracer(i,kts:count_pbl,j,p_tr17_7) = 1.0
+./chem/module_input_tracer.F:          tracer(i,kts:count_pbl,j,p_tr17_8) = 1.0
+./chem/module_input_tracer.F:   END SUBROUTINE set_tracer
+./chem/module_input_tracer.F:  SUBROUTINE bdy_tracer_value ( trac, trac_b, trac_bt, dt,ic)
+./chem/module_input_tracer.F:!     if( ntracer .GT. numtracer) then
+./chem/module_input_tracer.F:!       message = ' Input_tracer_profile: wrong number of tracers'
+./chem/module_input_tracer.F:  END SUBROUTINE bdy_tracer_value
+./chem/module_input_tracer.F:END MODULE module_input_tracer
+./chem/module_lightning_nox_decaria.F:! concentration and the respective passive tracer in lightning_nox_driver.
+./chem/module_lightning_nox_decaria.F: WRITE(message, * ) ' LNOx tracer: max_refl, max_cellcount, ic_fr = ',  reflmax, cellmax, ic_fr
+./chem/module_lightning_nox_driver.F:     CALL wrf_debug( 100, ' lightning_nox_driver: adding total tendency to NO and passive tracers')
+./chem/module_lightning_nox_driver.F:     CALL wrf_debug( 100, ' lightning_nox_driver: adding IC an& CG tendencies to NO and passive tracers')
+./chem/module_lightning_nox_ott.F:! concentration and the respective passive tracer in lightning_nox_driver.
+./chem/module_mosaic_coag.F:	ncomp_coag = ncomp_plustracer_aer(itype) + 3
+./chem/module_mosaic_coag.F:	    do ll = 1, ncomp_plustracer_aer(itype)
+./chem/module_mosaic_driver.F:	integer iaddto_ncomp, iaddto_ncomp_plustracer
+./chem/module_mosaic_driver.F:	integer ncomp_plustracer_dum(maxd_asize,maxd_aphase)
+./chem/module_mosaic_driver.F:	ncomp_plustracer_dum(:,:) = 0
+./chem/module_mosaic_driver.F:	iaddto_ncomp_plustracer = 1
+./chem/module_mosaic_driver.F:	    iaddto_ncomp_plustracer = 0
+./chem/module_mosaic_driver.F:	    iaddto_ncomp_plustracer = 0
+./chem/module_mosaic_driver.F:	    iaddto_ncomp_plustracer = 0
+./chem/module_mosaic_driver.F:	    ncomp_plustracer_dum(isize,iphase) =   &
+./chem/module_mosaic_driver.F:		ncomp_plustracer_dum(isize,iphase) + iaddto_ncomp_plustracer
+./chem/module_mosaic_driver.F:		ll = ncomp_plustracer_dum(isize,iphase)
+./chem/module_mosaic_driver.F:!   now set ncomp_aer and ncomp_plustracer_aer, 
+./chem/module_mosaic_driver.F:	ncomp_plustracer_aer(itype) = ncomp_plustracer_dum(1,ai_phase)
+./chem/module_mosaic_driver.F:	    if (ncomp_plustracer_aer(itype) .ne.   &
+./chem/module_mosaic_driver.F:			ncomp_plustracer_dum(isize,iphase)) then
+./chem/module_mosaic_driver.F:		    'ncomp_plustracer_aer .ne. ncomp_plustracer_dum'
+./chem/module_mosaic_driver.F:		    'ncomp_plustracer_aer, ncomp_plustracer_dum =',   &
+./chem/module_mosaic_driver.F:		    ncomp_plustracer_aer(itype),   &
+./chem/module_mosaic_driver.F:		    ncomp_plustracer_dum(isize,iphase)
+./chem/module_mosaic_driver.F:	do ll = 1, ncomp_plustracer_aer(itype)
+./chem/module_mosaic_driver.F:		    do ll = 1, ncomp_plustracer_aer(itype)
+./chem/module_mosaic_driver.F:     		ncomp_plustracer_aer(itype)
+./chem/module_mosaic_driver.F:	do n = 1, ncomp_plustracer_aer(itype)
+./chem/module_mosaic_driver.F:      		ncomp_plustracer_aer(n),       ncomp_aer(n),   &
+./chem/module_mosaic_driver.F:      		l=1,ncomp_plustracer_aer(itype))
+./chem/module_mosaic_drydep.F:	    do ll = -2, ncomp_plustracer_aer(itype)
+./chem/module_mosaic_initmixrats.F:	do ll = 1, ncomp_plustracer_aer(itype)
+./chem/module_mosaic_initmixrats.F:		lldum_hysw = ncomp_plustracer_aer(itype) + 1
+./chem/module_mosaic_initmixrats.F:	    do ll = 1, ncomp_plustracer_aer(itype) + 1
+./chem/module_mosaic_initmixrats.F:	do ll = 1, ncomp_plustracer_aer(itype)
+./chem/module_mosaic_initmixrats.F:        do 14350 l = 1, ncomp_plustracer_aer(itype)+4
+./chem/module_mosaic_initmixrats.F:            if (l .le. ncomp_plustracer_aer(itype)) then
+./chem/module_mosaic_initmixrats.F:            else if (l .eq. ncomp_plustracer_aer(itype)+1) then
+./chem/module_mosaic_initmixrats.F:            else if (l .eq. ncomp_plustracer_aer(itype)+2) then
+./chem/module_mosaic_initmixrats.F:            else if (l .eq. ncomp_plustracer_aer(itype)+3) then
+./chem/module_mosaic_initmixrats.F:            else if (l .eq. ncomp_plustracer_aer(itype)+4) then
+./chem/module_mosaic_initmixrats.F:        do 3150 l = 1, ncomp_plustracer_aer(itype)+4
+./chem/module_mosaic_initmixrats.F:            if (l .le. ncomp_plustracer_aer(itype)) then
+./chem/module_mosaic_initmixrats.F:            else if (l .eq. ncomp_plustracer_aer(itype)+1) then
+./chem/module_mosaic_initmixrats.F:            else if (l .eq. ncomp_plustracer_aer(itype)+2) then
+./chem/module_mosaic_initmixrats.F:            else if (l .eq. ncomp_plustracer_aer(itype)+3) then
+./chem/module_mosaic_initmixrats.F:            else if (l .eq. ncomp_plustracer_aer(itype)+4) then
+./chem/module_mosaic_movesect.F:!   29-aug-03 rce - use nspec_amode_nontracer in first "do ll" loop
+./chem/module_mosaic_movesect.F:	llhysw = ncomp_plustracer_aer(itype) + 1
+./chem/module_mosaic_movesect.F:	llwater = ncomp_plustracer_aer(itype) + 2
+./chem/module_mosaic_movesect.F:	    do ll = 1, ncomp_plustracer_aer(itype)
+./chem/module_mosaic_movesect.F:	do ll = 1, ncomp_plustracer_aer(itype)
+./chem/module_mosaic_movesect.F:	    do ll = 1, ncomp_plustracer_aer(itype) + 2
+./chem/module_mosaic_movesect.F:	    do ll = 1, ncomp_plustracer_aer(itype) + 2
+./chem/module_mosaic_movesect.F:	do ll = 1, ncomp_plustracer_aer(itype) + 2
+./chem/module_mosaic_movesect.F:	do ll = 1, ncomp_plustracer_aer(itype)
+./chem/module_mosaic_movesect.F:	    do ll = 1, ncomp_plustracer_aer(itype) + 2
+./chem/module_mosaic_movesect.F:	do ll = 1, ncomp_plustracer_aer(itype)
+./chem/module_mosaic_movesect.F:	do ll = 1, ncomp_plustracer_aer(itype)+7
+./chem/module_mosaic_movesect.F:	    do ll = 1, ncomp_plustracer_aer(itype)+2
+./chem/module_mosaic_movesect.F:	    ll = ncomp_plustracer_aer(itype)+3
+./chem/module_mosaic_movesect.F:	    ll = ncomp_plustracer_aer(itype)+4
+./chem/module_mosaic_movesect.F:	    ll = ncomp_plustracer_aer(itype)+5
+./chem/module_mosaic_movesect.F:	    ll = ncomp_plustracer_aer(itype)+6
+./chem/module_mosaic_movesect.F:	    ll = ncomp_plustracer_aer(itype)+7
+./chem/module_mosaic_movesect.F:	    do ll = 1, ncomp_plustracer_aer(itype)+3
+./chem/module_mosaic_movesect.F:		if (ll .le. ncomp_plustracer_aer(itype)) then
+./chem/module_mosaic_movesect.F:		else if (ll .eq. ncomp_plustracer_aer(itype)+1) then
+./chem/module_mosaic_movesect.F:		else if (ll .eq. ncomp_plustracer_aer(itype)+2) then
+./chem/module_mosaic_movesect.F:	    ll = ncomp_plustracer_aer(itype)+2
+./chem/module_mosaic_movesect.F:	    ll = ncomp_plustracer_aer(itype)+3
+./chem/module_mosaic_movesect.F:	do ll = 1, ncomp_plustracer_aer(itype)+7
+./chem/module_mosaic_movesect.F:	    if (ll .le. ncomp_plustracer_aer(itype)) dumname(ll) =   &
+./chem/module_mosaic_movesect.F:	    if (ll .eq. ncomp_plustracer_aer(itype)+1) dumname(ll) = 'hysw'
+./chem/module_mosaic_movesect.F:	    if (ll .eq. ncomp_plustracer_aer(itype)+2) dumname(ll) = 'watr'
+./chem/module_mosaic_movesect.F:	    if (ll .eq. ncomp_plustracer_aer(itype)+3) dumname(ll) = 'numb'
+./chem/module_mosaic_movesect.F:	    if (ll .eq. ncomp_plustracer_aer(itype)+4) dumname(ll) = 'drymass'
+./chem/module_mosaic_movesect.F:	    if (ll .eq. ncomp_plustracer_aer(itype)+5) dumname(ll) = 'dryvol'
+./chem/module_mosaic_movesect.F:	    if (ll .eq. ncomp_plustracer_aer(itype)+6) dumname(ll) = 'wetmass'
+./chem/module_mosaic_movesect.F:	    if (ll .eq. ncomp_plustracer_aer(itype)+7) dumname(ll) = 'wetvol'
+./chem/module_mosaic_movesect.F:	do ll = 1, ncomp_plustracer_aer(itype)+7
+./chem/module_mosaic_movesect.F:		if (ll .eq. ncomp_plustracer_aer(itype)+2) then
+./chem/module_mosaic_movesect.F:		else if (ll .eq. ncomp_plustracer_aer(itype)+3) then
+./chem/module_mosaic_movesect.F:		if (ll .eq. 0) ll = ncomp_plustracer_aer(itype)+2
+./chem/module_mosaic_movesect.F:		if ( (ll .eq. ncomp_plustracer_aer(itype)+3) .and.   &
+./chem/module_mosaic_movesect.F:	    do ll = 1, ncomp_plustracer_aer(itype)
+./chem/module_mosaic_movesect.F:!	checks involving nspec_amode and nspec_amode_nontracer
+./chem/module_mosaic_therm.F:      		ncomp_plustracer_aer(itype),   &
+./chem/module_mosaic_therm.F:      		l=1,ncomp_plustracer_aer(itype) )
+./chem/module_mosaic_therm.F:      		ncomp_plustracer_aer(itype),   &
+./chem/module_mosaic_therm.F:      		l=1,ncomp_plustracer_aer(itype) )
+./chem/module_mosaic_wetscav.F:!    TMR = tracer mixing ratio
+./chem/module_mosaic_wetscav.F:                        ! changes to column tracer burdens by wet scavenging over current timestep
+./chem/module_mosaic_wetscav.F:!    TMR = tracer mixing ratio
+./chem/module_mosaic_wetscav.F:                        ! changes to column tracer burdens by wet scavenging over current timestep
+./chem/module_mozcart_wetscav.F:!---called from pmain to calculate rainout and washout of tracers
+./chem/module_mozcart_wetscav.F:!-----Evaporate tracer contained in evaporated precip
+./chem/module_mozcart_wetscav.F:!  Tracer dissolved given by Kaercher and Voigt (2006) for T<258K
+./chem/module_mozcart_wetscav.F:!  reload new tracer mass and rescale moments: check upper limits (LE) 
+./chem/module_mozcart_wetscav.F:      real, intent(in) :: MOLMASS     !molecular mass of tracer
+./chem/module_mozcart_wetscav.F:      real, intent(in) :: QT          !tracer in box (kg)
+./chem/module_mozcart_wetscav.F:      real, intent(out) :: QTDIS      !tracer dissolved in aqueous phase 
+./chem/module_mozcart_wetscav.F:!  calculate rate of uptake of tracer
+./chem/module_mozcart_wetscav.F:!  p(atm of tracer-T) = (QT/QM) * (.029/MolWt-T) * pressr(hPa)/1000
+./chem/module_mozcart_wetscav.F:      real, intent(in) :: QT          !tracer in box (kg) 
+./chem/module_mozcart_wetscav.F:      real, intent(in) :: QTDIS       !tracer in aqueous phase (kg) 
+./chem/module_mozcart_wetscav.F:      real, intent(out) :: QTRAIN     !tracer picked up by new rain  
+./chem/module_mozcart_wetscav.F:!  Tracer Loss frequency (1/s) within cloud fraction:
+./chem/module_mozcart_wetscav.F:      real, intent(in)  :: QTRTOP  ! tracer-T in rain entering top of box over time step (kg)
+./chem/module_mozcart_wetscav.F:      real, intent(in)  :: QT      ! tracer in box (kg)
+./chem/module_mozcart_wetscav.F:      real, intent(out) :: QTWASH  ! tracer picked up by precip (kg)
+./chem/module_mozcart_wetscav.F:      real, intent(out) :: QTEVAP  ! tracer evaporated from precip (kg)
+./chem/module_mozcart_wetscav.F:!  p(atm of tracer-T) = (QT/QM) * (.029/MolWt-T) * pressr(hPa)/1000
+./chem/module_mozcart_wetscav.F:!  more of tracer T can go into rain
+./chem/module_radm.F:!  advected chemical tracers
+./chem/module_sea_salt_emis.F:  REAL*8, TARGET :: tcms(imx,jmx,lmx,nmx) ! tracer mass (kg; kgS for sulfur case)
+./chem/module_vash_settling.F:     ! Settling velocity (m/s) for each tracer (Stokes Law)
+./dyn_em/couple_or_uncouple_em.F:     IF (num_tracer >= PARAM_FIRST_SCALAR )  THEN
+./dyn_em/couple_or_uncouple_em.F:       DO im = PARAM_FIRST_SCALAR, num_tracer
+./dyn_em/couple_or_uncouple_em.F:           tracer(i,k,j,im)  =  tracer(i,k,j,im)*mut_2(i,j)
+./dyn_em/couple_or_uncouple_em.F:     IF (num_tracer >= PARAM_FIRST_SCALAR) THEN
+./dyn_em/couple_or_uncouple_em.F:       DO im = PARAM_FIRST_SCALAR , num_tracer
+./dyn_em/couple_or_uncouple_em.F:     CALL set_physical_bc3d( tracer(ims,kms,jms,im), 'p',        &
+./dyn_em/module_after_all_rk_steps.F:                                   moist, chem, tracer, scalar,         &
+./dyn_em/module_after_all_rk_steps.F:      USE module_state_description, ONLY: num_moist, num_chem, num_tracer, num_scalar
+./dyn_em/module_after_all_rk_steps.F:      REAL , DIMENSION(ims:ime,kms:kme,jms:jme,num_tracer) , INTENT(IN) :: tracer
+./dyn_em/module_after_all_rk_steps.F:                                moist, chem, tracer, scalar,         &
+./dyn_em/module_diffusion_em.F:                                    tracer_tendf, n_tracer,                    &
+./dyn_em/module_diffusion_em.F:                                    moist, chem, scalar,tracer,                &
+./dyn_em/module_diffusion_em.F:   INTEGER ,        INTENT(IN   ) ::        n_moist,n_chem,n_scalar,n_tracer,km_opt
+./dyn_em/module_diffusion_em.F:   REAL , DIMENSION( ims:ime, kms:kme, jms:jme, n_tracer),                &
+./dyn_em/module_diffusion_em.F:          INTENT(INOUT) ::                                   tracer_tendf
+./dyn_em/module_diffusion_em.F:   REAL , DIMENSION( ims:ime, kms:kme, jms:jme, n_tracer) ,               &
+./dyn_em/module_diffusion_em.F:          INTENT(IN   ) ::                                         tracer 
+./dyn_em/module_diffusion_em.F:    IF (n_tracer .ge. PARAM_FIRST_SCALAR) THEN 
+./dyn_em/module_diffusion_em.F:      tracer_loop: do ic = PARAM_FIRST_SCALAR, n_tracer
+./dyn_em/module_diffusion_em.F:        CALL horizontal_diffusion_s( tracer_tendf(ims,kms,jms,ic),     &
+./dyn_em/module_diffusion_em.F:                                     tracer(ims,kms,jms,ic),           &
+./dyn_em/module_diffusion_em.F:      ENDDO tracer_loop
+./dyn_em/module_diffusion_em.F:                                    tracer_tendf, n_tracer,                   &
+./dyn_em/module_diffusion_em.F:                                    moist,chem,scalar,tracer,                 &
+./dyn_em/module_diffusion_em.F:   INTEGER ,        INTENT(IN   ) ::        n_moist,n_chem,n_scalar,n_tracer,km_opt
+./dyn_em/module_diffusion_em.F:   REAL , DIMENSION( ims:ime, kms:kme, jms:jme, n_tracer) ,               &
+./dyn_em/module_diffusion_em.F:          INTENT(INOUT) ::                                   tracer_tendf
+./dyn_em/module_diffusion_em.F:   REAL , DIMENSION( ims:ime, kms:kme, jms:jme, n_tracer) ,               &
+./dyn_em/module_diffusion_em.F:          INTENT(IN   ) ::                                         tracer
+./dyn_em/module_diffusion_em.F:   IF (n_tracer .ge. PARAM_FIRST_SCALAR) THEN 
+./dyn_em/module_diffusion_em.F:     tracer_loop: do im = PARAM_FIRST_SCALAR, n_tracer
+./dyn_em/module_diffusion_em.F:          CALL vertical_diffusion_s( tracer_tendf(ims,kms,jms,im),         &
+./dyn_em/module_diffusion_em.F:                                     config_flags, tracer(ims,kms,jms,im), &
+./dyn_em/module_diffusion_em.F:     ENDDO tracer_loop
+./dyn_em/module_em.F:                              tracer_tendf,n_tracer,                   &
+./dyn_em/module_em.F:   INTEGER ,       INTENT(IN   ) :: n_moist,n_chem,n_scalar,n_tracer,rk_step
+./dyn_em/module_em.F:   REAL , DIMENSION(ims:ime, kms:kme, jms:jme, n_tracer ),INTENT(INOUT)::&
+./dyn_em/module_em.F:                                                          tracer_tendf
+./dyn_em/module_em.F:!   DO ic=PARAM_FIRST_SCALAR,n_tracer
+./dyn_em/module_em.F:   DO ic=1,n_tracer                     ! make sure first one is zero too
+./dyn_em/module_em.F:      CALL zero_tend ( tracer_tendf(ims,kms,jms,ic), &
+./dyn_em/module_em.F:                     tracer, tracer_tend, num_tracer,                  &
+./dyn_em/module_em.F:      INTEGER,  INTENT(IN   )   ::          num_scalar, num_tracer
+./dyn_em/module_em.F:    REAL    ,DIMENSION(ims:ime,kms:kme,jms:jme,num_tracer),INTENT(INOUT)   :: tracer
+./dyn_em/module_em.F:    REAL    ,DIMENSION(ims:ime,kms:kme,jms:jme,num_tracer),INTENT(INOUT)   :: tracer_tend
+./dyn_em/module_em.F:   DO im = PARAM_FIRST_SCALAR,num_tracer
+./dyn_em/module_em.F:            tracer_tend(I,K,J,im)=mu(I,J)*tracer_tend(I,K,J,im)
+./dyn_em/module_first_rk_step_part1.F:                             , tracer, tracer_tend              &
+./dyn_em/module_first_rk_step_part1.F:    REAL    ,DIMENSION(ims:ime,kms:kme,jms:jme,num_tracer),INTENT(INOUT)   :: tracer
+./dyn_em/module_first_rk_step_part1.F:    REAL    ,DIMENSION(ims:ime,kms:kme,jms:jme,num_tracer),INTENT(INOUT)   :: tracer_tend
+./dyn_em/module_first_rk_step_part1.F:                                   tracer_tend,num_tracer,           &
+./dyn_em/module_first_rk_step_part1.F:! for pbl mixing of scalars and tracers
+./dyn_em/module_first_rk_step_part1.F:     &        ,TRACER=tracer,TRACER_TEND=tracer_tend,NUM_TRACER=num_tracer&
+./dyn_em/module_first_rk_step_part1.F:     &        ,TRACER_PBLMIX=config_flags%tracer_pblmix                  &
+./dyn_em/module_first_rk_step_part1.F:                 ! Moisture tracer arguments
+./dyn_em/module_first_rk_step_part2.F:                             , tracer, tracer_tend              &
+./dyn_em/module_first_rk_step_part2.F:    REAL    ,DIMENSION(ims:ime,kms:kme,jms:jme,num_tracer),INTENT(INOUT)   :: tracer
+./dyn_em/module_first_rk_step_part2.F:    REAL    ,DIMENSION(ims:ime,kms:kme,jms:jme,num_tracer),INTENT(INOUT)   :: tracer_tend
+./dyn_em/module_first_rk_step_part2.F:                     tracer, tracer_tend, num_tracer,                  &
+./dyn_em/module_first_rk_step_part2.F:                                      tracer_tend, num_tracer,                     &
+./dyn_em/module_first_rk_step_part2.F:                                      grid%div, moist, chem, scalar,tracer,         &
+./dyn_em/module_first_rk_step_part2.F:                                      tracer_tend, num_tracer,                 &
+./dyn_em/module_first_rk_step_part2.F:                                      moist, chem, scalar,tracer,               &
+./dyn_em/module_initialize_real.F:               ,flag_tracer        = 0                                      &
+./dyn_em/module_initialize_real.F:               ,moist=moist,chem=chem,tracer=tracer,scalar=scalar           &
+./dyn_em/module_initialize_real.F:      !  Template for initializing tracer arrays. 
+./dyn_em/module_initialize_real.F:      IF (config_flags%tracer_opt .eq. 2) THEN
+./dyn_em/module_initialize_real.F:               tracer(i, 1, j, im) = 1.
+./dyn_em/module_initialize_real.F:                 tracer(i, 1, j, P_tr17_1) = 1.
+./dyn_em/module_initialize_real.F:                 tracer(i, 1, j, P_tr17_2) = 1.
+./dyn_em/module_initialize_real.F:                 tracer(i, 1, j, P_tr17_3) = 1.
+./dyn_em/module_initialize_real.F:                 tracer(i, 1, j, P_tr17_4) = 1.
+./dyn_em/module_initialize_real.F:!                tracer(i, 1, j, P_tr17_5) = 1.
+./dyn_em/module_initialize_real.F:!                tracer(i, 1, j, P_tr17_6) = 1.
+./dyn_em/module_initialize_real.F:!                tracer(i, 1, j, P_tr17_7) = 1.
+./dyn_em/module_initialize_real.F:!                tracer(i, 1, j, P_tr17_8) = 1.
+./dyn_em/module_initialize_seabreeze2d_x.F:    if(k.eq.kts)tracer(i,k,j,p_tr17_1)=1.
+./dyn_em/module_initialize_seabreeze2d_x.F:    if(k.eq.kts.and.grid%xland(i,j).lt.1.5)tracer(i,k,j,p_tr17_2)=1.
+./dyn_em/module_initialize_seabreeze2d_x.F:    if(k.eq.kts.and.grid%xland(i,j).gt.1.5)tracer(i,k,j,p_tr17_3)=1.
+./dyn_em/module_initialize_seabreeze2d_x.F:    if(k.le.5)tracer(i,k,j,p_tr17_4)=1.
+./dyn_em/module_initialize_seabreeze2d_x.F:    if(k.le.5.and.grid%xland(i,j).lt.1.5)tracer(i,k,j,p_tr17_5)=1.
+./dyn_em/module_initialize_seabreeze2d_x.F:    if(k.le.5.and.grid%xland(i,j).gt.1.5)tracer(i,k,j,p_tr17_6)=1.
+./dyn_em/module_initialize_seabreeze2d_x.F:    if(k.le.10)tracer(i,k,j,p_tr17_7)=1.
+./dyn_em/module_initialize_seabreeze2d_x.F:    if(k.le.10.and.k.gt.5)tracer(i,k,j,p_tr17_8)=1.
+./dyn_em/module_polarfft.F:                 ,flag_tracer                   &
+./dyn_em/module_polarfft.F:                 ,moist,chem,tracer,scalar      &
+./dyn_em/module_polarfft.F:                ,XPOSE_POLAR_FILTER_TRACER_z2x_sub      &
+./dyn_em/module_polarfft.F:                ,XPOSE_POLAR_FILTER_TRACER_x2z_sub      &
+./dyn_em/module_polarfft.F:                         ,flag_tracer                   &
+./dyn_em/module_polarfft.F:    REAL, DIMENSION(ims:ime,kms:kme,jms:jme,*) , INTENT(INOUT) :: moist, chem, scalar,tracer
+./dyn_em/module_polarfft.F:        CALL filter_tracer ( grid%t_xxx , grid%clat_xxx , grid%mf_xxx , &
+./dyn_em/module_polarfft.F:        CALL filter_tracer ( grid%t_2 , grid%clat , grid%msft , &
+./dyn_em/module_polarfft.F:! TRACER
+./dyn_em/module_polarfft.F:   IF ( flag_tracer .GE. PARAM_FIRST_SCALAR ) THEN
+./dyn_em/module_polarfft.F:     itrace = flag_tracer
+./dyn_em/module_polarfft.F:# include "XPOSE_POLAR_FILTER_TRACER_z2x.inc"
+./dyn_em/module_polarfft.F:        CALL filter_tracer ( grid%fourd_xxx , grid%clat_xxx , grid%mf_xxx , &
+./dyn_em/module_polarfft.F:# include "XPOSE_POLAR_FILTER_TRACER_x2z.inc"
+./dyn_em/module_polarfft.F:     CALL polar_filter_3d( tracer(ims,kms,jms,itrace), grid%clat, .false. ,     &
+./dyn_em/module_polarfft.F:        CALL filter_tracer ( tracer(ims,kms,jms,itrace) , grid%clat , grid%msft , &
+./dyn_em/module_polarfft.F:   SUBROUTINE filter_tracer ( tr3d_in , xlat , msftx , &
+./dyn_em/module_polarfft.F:   END SUBROUTINE filter_tracer
+./dyn_em/module_polarfft.F:   SUBROUTINE filter_tracer_old ( tr3d_in , xlat , msftx , fft_filter_lat , &
+./dyn_em/module_polarfft.F:   END SUBROUTINE filter_tracer_old
+./dyn_em/solve_em.F:                 ,halo_em_tke_old_e_7_sub,halo_em_tracer_e_3_sub,halo_em_tracer_e_5_sub    &
+./dyn_em/solve_em.F:                 ,halo_em_tracer_e_7_sub,halo_em_tracer_old_e_5_sub                        &
+./dyn_em/solve_em.F:                 ,halo_em_tracer_old_e_7_sub,halo_em_sbm_sub,period_bdy_em_a_sub                           &
+./dyn_em/solve_em.F:                 ,period_bdy_em_tracer2_sub,period_bdy_em_tracer_old_sub                   &
+./dyn_em/solve_em.F:                 ,period_bdy_em_tracer_sub,period_em_da_sub,period_em_hydro_uv_sub         &
+./dyn_em/solve_em.F:   USE module_input_tracer
+./dyn_em/solve_em.F:! Previous time level of tracer arrays now defined as i1 variables;
+./dyn_em/solve_em.F:call random_number(tracer)
+./dyn_em/solve_em.F:tracer = tracer * 10.
+./dyn_em/solve_em.F:tracer = tracer + 375
+./dyn_em/solve_em.F:   if ( num_tracer >= PARAM_FIRST_SCALAR ) then
+./dyn_em/solve_em.F:     CALL wrf_debug ( 200 , ' call HALO_RK_tracer' )
+./dyn_em/solve_em.F:#      include "HALO_EM_TRACER_E_3.inc"
+./dyn_em/solve_em.F:#      include "HALO_EM_TRACER_E_5.inc"
+./dyn_em/solve_em.F:                             , tracer, tracer_tend              &
+./dyn_em/solve_em.F:                             , tracer, tracer_tend              &
+./dyn_em/solve_em.F:               ,flag_tracer        = 0                                      &
+./dyn_em/solve_em.F:               ,moist=moist,chem=chem,tracer=tracer,scalar=scalar           &
+./dyn_em/solve_em.F:                ,flag_tracer        = 0                                      &
+./dyn_em/solve_em.F:                ,moist=moist,chem=chem,tracer=tracer,scalar=scalar           &
+./dyn_em/solve_em.F:                ,flag_tracer        = 0                                      &
+./dyn_em/solve_em.F:                ,moist=moist,chem=chem,tracer=tracer,scalar=scalar           &
+./dyn_em/solve_em.F:                  ,flag_tracer        = 0                                      &
+./dyn_em/solve_em.F:                  ,moist=moist,chem=chem,tracer=tracer,scalar=scalar           &
+./dyn_em/solve_em.F:! tracer
+./dyn_em/solve_em.F:       IF ((config_flags%tracer_adv_opt /= ORIGINAL .and. config_flags%tracer_adv_opt /= WENO_SCALAR) .and. (rk_step == rk_order)) THEN
+./dyn_em/solve_em.F:           DO im = PARAM_FIRST_SCALAR, num_tracer
+./dyn_em/solve_em.F:                                       tracer_old(ims,kms,jms,im),                &
+./dyn_em/solve_em.F:                                       tracer_tend(ims,kms,jms,im),               &
+./dyn_em/solve_em.F:         IF (config_flags%tracer_adv_opt /= ORIGINAL .and. config_flags%tracer_adv_opt /= WENO_SCALAR) THEN
+./dyn_em/solve_em.F:#     include "HALO_EM_TRACER_OLD_E_5.inc"
+./dyn_em/solve_em.F:#     include "HALO_EM_TRACER_OLD_E_7.inc"
+./dyn_em/solve_em.F:#  include "PERIOD_BDY_EM_TRACER_OLD.inc"
+./dyn_em/solve_em.F:           IF (num_tracer >= PARAM_FIRST_SCALAR) THEN
+./dyn_em/solve_em.F:             DO im = PARAM_FIRST_SCALAR , num_tracer
+./dyn_em/solve_em.F:               CALL set_physical_bc3d(  tracer_old(ims,kms,jms,im), 'p', config_flags,   &
+./dyn_em/solve_em.F:       ENDIF  ! end if for tracer_adv_opt
+./dyn_em/solve_em.F:BENCH_START(tracer_adv_tim)
+./dyn_em/solve_em.F:       tracer_advance: IF (num_tracer >= PARAM_FIRST_SCALAR)  THEN
+./dyn_em/solve_em.F:         tracer_variable_loop: DO ic = PARAM_FIRST_SCALAR, num_tracer
+./dyn_em/solve_em.F:           tracer_tile_loop_1: DO ij = 1 , grid%num_tiles
+./dyn_em/solve_em.F:             CALL wrf_debug ( 15 , ' call rk_scalar_tend in tracer_tile_loop_1' )
+./dyn_em/solve_em.F:                              tracer_old(ims,kms,jms,ic),                          &
+./dyn_em/solve_em.F:                              tracer(ims,kms,jms,ic),                              &
+./dyn_em/solve_em.F:                              tracer_tend(ims,kms,jms,ic),                         &
+./dyn_em/solve_em.F:                              config_flags%tracer_adv_opt,                         &
+./dyn_em/solve_em.F:             IF(ic.eq.1)CALL wrf_debug ( 10 , ' have_bcs_tracer' )
+./dyn_em/solve_em.F:             CALL relax_bdy_scalar ( tracer_tend(ims,kms,jms,ic),                                    &
+./dyn_em/solve_em.F:                                     tracer(ims,kms,jms,ic),  grid%mut,                              &
+./dyn_em/solve_em.F:                                     tracer_bxs(jms,kms,1,ic),tracer_bxe(jms,kms,1,ic),                &
+./dyn_em/solve_em.F:                                     tracer_bys(ims,kms,1,ic),tracer_bye(ims,kms,1,ic),                &
+./dyn_em/solve_em.F:                                     tracer_btxs(jms,kms,1,ic),tracer_btxe(jms,kms,1,ic),              &
+./dyn_em/solve_em.F:                                     tracer_btys(ims,kms,1,ic),tracer_btye(ims,kms,1,ic),              &
+./dyn_em/solve_em.F:             CALL spec_bdy_scalar  ( tracer_tend(ims,kms,jms,ic),                 &
+./dyn_em/solve_em.F:                                     tracer_bxs(jms,kms,1,ic),tracer_bxe(jms,kms,1,ic),                &
+./dyn_em/solve_em.F:                                     tracer_bys(ims,kms,1,ic),tracer_bye(ims,kms,1,ic),                &
+./dyn_em/solve_em.F:                                     tracer_btxs(jms,kms,1,ic),tracer_btxe(jms,kms,1,ic),              &
+./dyn_em/solve_em.F:                                     tracer_btys(ims,kms,1,ic),tracer_btye(ims,kms,1,ic),              &
+./dyn_em/solve_em.F:         ENDDO tracer_tile_loop_1
+./dyn_em/solve_em.F:         tracer_tile_loop_2: DO ij = 1 , grid%num_tiles
+./dyn_em/solve_em.F:                                  scalar_1=tracer_old(ims,kms,jms,ic),                    &
+./dyn_em/solve_em.F:                                  scalar_2=tracer(ims,kms,jms,ic),                        &
+./dyn_em/solve_em.F:                                  sc_tend=tracer_tend(ims,kms,jms,ic),                    &
+./dyn_em/solve_em.F:             CALL flow_dep_bdy_tracer( tracer(ims,kms,jms,ic),                             &
+./dyn_em/solve_em.F:                                     tracer_bxs(jms,kms,1,ic), tracer_btxs(jms,kms,1,ic),  &
+./dyn_em/solve_em.F:                                     tracer_bxe(jms,kms,1,ic), tracer_btxe(jms,kms,1,ic),  &
+./dyn_em/solve_em.F:                                     tracer_bys(ims,kms,1,ic), tracer_btys(ims,kms,1,ic),  &
+./dyn_em/solve_em.F:                                     tracer_bye(ims,kms,1,ic), tracer_btye(ims,kms,1,ic),  &
+./dyn_em/solve_em.F:                                     grid%have_bcs_tracer,      &
+./dyn_em/solve_em.F:                                     grid%ru_m, grid%rv_m, config_flags%tracer_opt,grid%alt,       &
+./dyn_em/solve_em.F:             CALL flow_dep_bdy  ( tracer(ims,kms,jms,ic),     &
+./dyn_em/solve_em.F:         ENDDO tracer_tile_loop_2
+./dyn_em/solve_em.F:       ENDDO tracer_variable_loop
+./dyn_em/solve_em.F:     ENDIF tracer_advance
+./dyn_em/solve_em.F:BENCH_END(tracer_adv_tim)
+./dyn_em/solve_em.F:                    ,flag_tracer        = 0                                      &
+./dyn_em/solve_em.F:                    ,moist=moist,chem=chem,tracer=tracer,scalar=scalar           &
+./dyn_em/solve_em.F:                    ,flag_tracer        = 0                                      &
+./dyn_em/solve_em.F:                    ,moist=moist,chem=chem,tracer=tracer,scalar=scalar           &
+./dyn_em/solve_em.F:         IF ( num_tracer >= PARAM_FIRST_SCALAR ) THEN
+./dyn_em/solve_em.F:           CALL wrf_debug ( 200 , ' call filter tracer ' )
+./dyn_em/solve_em.F:           DO im = PARAM_FIRST_SCALAR, num_tracer
+./dyn_em/solve_em.F:             CALL couple_scalars_for_filter ( FIELD=tracer(ims,kms,jms,im)               &
+./dyn_em/solve_em.F:                    ,flag_tracer        = im                                     &
+./dyn_em/solve_em.F:                    ,moist=moist,chem=chem,tracer=tracer,scalar=scalar           &
+./dyn_em/solve_em.F:             CALL uncouple_scalars_for_filter ( FIELD=tracer(ims,kms,jms,im)     &
+./dyn_em/solve_em.F:                  ,flag_tracer        = 0                                      &
+./dyn_em/solve_em.F:                  ,moist=moist,chem=chem,tracer=tracer,scalar=scalar           &
+./dyn_em/solve_em.F:#  include "PERIOD_BDY_EM_TRACER2.inc"
+./dyn_em/solve_em.F:         IF (num_tracer >= PARAM_FIRST_SCALAR) THEN
+./dyn_em/solve_em.F:           tracer_species_bdy_loop_1 : DO ic = PARAM_FIRST_SCALAR , num_tracer
+./dyn_em/solve_em.F:             CALL set_physical_bc3d( tracer(ims,kms,jms,ic), 'p', config_flags,   &
+./dyn_em/solve_em.F:           END DO tracer_species_bdy_loop_1
+./dyn_em/solve_em.F:       IF ( num_tracer >= PARAM_FIRST_SCALAR ) THEN
+./dyn_em/solve_em.F:           IF ( (config_flags%tracer_adv_opt /= ORIGINAL .and. config_flags%tracer_adv_opt /= WENO_SCALAR) .and. (rk_step == rk_order-1) ) THEN
+./dyn_em/solve_em.F:#        include "HALO_EM_TRACER_E_5.inc"
+./dyn_em/solve_em.F:#        include "HALO_EM_TRACER_E_3.inc"
+./dyn_em/solve_em.F:           IF ( (config_flags%tracer_adv_opt /= ORIGINAL .and. config_flags%tracer_adv_opt /= WENO_SCALAR) .and. (rk_step == rk_order-1) ) THEN
+./dyn_em/solve_em.F:#        include "HALO_EM_TRACER_E_7.inc"
+./dyn_em/solve_em.F:#        include "HALO_EM_TRACER_E_5.inc"
+./dyn_em/solve_em.F:                      tracer , num_tracer , config_flags ,              &
+./dyn_em/solve_em.F:                      tracer , num_tracer , config_flags ,              &
+./dyn_em/solve_em.F:                  ,flag_tracer        = 0                                      &
+./dyn_em/solve_em.F:                  ,moist=moist,chem=chem,tracer=tracer,scalar=scalar           &
+./dyn_em/solve_em.F:                  ,flag_tracer        = 0                                      &
+./dyn_em/solve_em.F:                  ,moist=moist,chem=chem,tracer=tracer,scalar=scalar           &
+./dyn_em/solve_em.F:     IF ( num_tracer >= PARAM_FIRST_SCALAR ) then
+./dyn_em/solve_em.F:       tracer_filter_loop: DO im = PARAM_FIRST_SCALAR, num_tracer
+./dyn_em/solve_em.F:               tracer(ii,kk,jj,im)=tracer(ii,kk,jj,im)*(grid%mu_2(ii,jj)+grid%mub(ii,jj))
+./dyn_em/solve_em.F:                  ,flag_tracer        = im                                     &
+./dyn_em/solve_em.F:                  ,moist=moist,chem=chem,tracer=tracer,scalar=scalar           &
+./dyn_em/solve_em.F:               tracer(ii,kk,jj,im)=tracer(ii,kk,jj,im)/(grid%mu_2(ii,jj)+grid%mub(ii,jj))
+./dyn_em/solve_em.F:       ENDDO tracer_filter_loop
+./dyn_em/solve_em.F:                  ,flag_tracer        = 0                                      &
+./dyn_em/solve_em.F:                  ,moist=moist,chem=chem,tracer=tracer,scalar=scalar           &
+./dyn_em/solve_em.F:#  include "PERIOD_BDY_EM_TRACER.inc"
+./dyn_em/solve_em.F:     tracer_species_bdy_loop_2 : DO ic = PARAM_FIRST_SCALAR , num_tracer
+./dyn_em/solve_em.F:       CALL set_physical_bc3d( tracer(ims,kms,jms,ic) , 'p', config_flags,  &
+./dyn_em/solve_em.F:     END DO tracer_species_bdy_loop_2
+./dyn_em/solve_em.F:                            moist, chem, tracer, scalar,         &
+./dyn_em/solve_em.F:   IF ( num_tracer >= PARAM_FIRST_SCALAR ) THEN
+./dyn_em/solve_em.F:     CALL wrf_debug ( 200 , ' call HALO_RK_TRACER' )
+./dyn_em/solve_em.F:#      include "HALO_EM_TRACER_E_3.inc"
+./dyn_em/solve_em.F:#      include "HALO_EM_TRACER_E_5.inc"
+./dyn_em/start_em.F:   USE module_input_tracer, ONLY: initialize_tracer
+./dyn_em/start_em.F:                        ,lnox_total=tracer(:,:,:,p_lnox_total)    &
+./dyn_em/start_em.F:                        ,lnox_ic=tracer(:,:,:,p_lnox_ic)          &
+./dyn_em/start_em.F:                        ,lnox_cg=tracer(:,:,:,p_lnox_cg)          &
+./dyn_em/start_em.F:        if(config_flags%tracer_opt > 0 )then
+./dyn_em/start_em.F:           call initialize_tracer (tracer,config_flags%chem_in_opt, &
+./dyn_em/start_em.F:                               config_flags%tracer_opt,num_tracer,  &
+./dyn_nmm/module_ADVECTION.F: s                           ! tracers
+./dyn_nmm/module_PHYSICS_CALLS.F:     &               ,NUM_SCALAR=1, NUM_TRACER=1                      &  ! parameters not used by NMM
+./dyn_nmm/module_PHYSICS_CALLS.F:                  ! Moisture tracer arguments
+./dyn_nmm/solve_nmm.F:      INTEGER :: KS                                                        ! species index in 4d tracer array
+./dyn_nmm/solve_nmm.F:      eulerian: IF(EULER) THEN    ! Eulerian advection for model tracers
+./dyn_nmm/solve_nmm.F:#    include "HALO_TRACERS.inc"
+./dyn_nmm/solve_nmm.F:#    include "HALO_TRACERS.inc"
+./dyn_nmm/solve_nmm.F:      ENDIF eulerian  ! eulerian advection for model tracers
+./dyn_nmm/solve_nmm.F:      not_euler: IF(.NOT.EULER) THEN ! Lagrangian model tracer advection
+./dyn_nmm/solve_nmm.F:      ENDIF not_euler  ! Lagrangian model tracer advection
+./frame/module_configure.F:! packages have different numbers of tracers but the nest forcing and
+./frame/module_configure.F:! kind of tracers. This means that the microphysics option
+./frame/module_configure.F:! tracers. Basically, this says that the microphysics option
+./frame/module_configure.F:!as indices into 4D tracer arrays for moisture, chemistry, etc.
+./frame/module_configure.F:!different sets of tracers so these indices can vary from domain to
+./frame/module_configure.F:!packages -- more specifically in the case of the moisture tracers, microphysics
+./frame/module_configure.F:!4d tracers and from the package definitions that indicate which physics
+./frame/module_configure.F:!packages use which tracers.
+./frame/module_domain_type.F:      CHARACTER*80    :: MemberOf   ! only for 4+D tracer arrays
+./frame/module_integrate.F:! the indices into the 4D tracer arrays for the domain.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: chem_tracer = 13
+./frame/module_state_description.F:  INTEGER, PARAMETER :: co2_tracer = 16
+./frame/module_state_description.F:  INTEGER, PARAMETER :: ghg_tracer = 17
+./frame/module_state_description.F:  INTEGER, PARAMETER :: tracer_smoke = 1
+./frame/module_state_description.F:  INTEGER, PARAMETER :: tracer_test1 = 2
+./frame/module_state_description.F:  INTEGER, PARAMETER :: tracer_test2 = 3
+./frame/module_state_description.F:  INTEGER, PARAMETER :: tracer_test3 = 4
+./frame/module_state_description.F:  INTEGER, PARAMETER :: tracer_test7 = 7
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_1 = 465
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_1 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_1 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_2 = 466
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_2 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_2 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_3 = 467
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_3 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_3 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_4 = 468
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_4 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_4 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_5 = 469
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_5 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_5 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_6 = 470
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_6 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_6 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_7 = 471
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_7 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_7 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_8 = 472
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_8 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_8 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_9 = 473
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_9 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_9 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_10 = 474
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_10 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_10 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_11 = 475
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_11 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_11 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_12 = 476
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_12 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_12 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_13 = 477
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_13 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_13 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_14 = 478
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_14 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_14 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_15 = 479
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_15 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_15 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_16 = 480
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_16 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_16 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_17 = 481
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_17 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_17 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_18 = 482
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_18 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_18 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_19 = 483
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_19 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_19 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_20 = 484
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_20 = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_20 = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_tracer_ens = 485
+./frame/module_state_description.F:  INTEGER            ::     P_tracer_ens = 1
+./frame/module_state_description.F:  LOGICAL            ::     F_tracer_ens = .FALSE.
+./frame/module_state_description.F:  INTEGER, PARAMETER :: PARAM_NUM_tracer = 160
+./frame/module_state_description.F:  INTEGER            ::       NUM_tracer = 1
+./main/module_wrf_top.F:! also necessary that the indices into the 4d tracer arrays such as
+./phys/module_bl_camuwpbl_driver.F:          !!                the treatment of other tracers.
+./phys/module_bl_gfs.F:!     COMPUTE TRIDIAGONAL MATRIX ELEMENTS FOR TRACERS
+./phys/module_bl_gfs.F:!     SOLVE TRIDIAGONAL PROBLEM FOR TRACERS
+./phys/module_bl_gfs.F:!     RECOVER TENDENCIES OF TRACERS
+./phys/module_bl_ysu.F:!  k-start index for tracer diffusion
+./phys/module_cam_bl_diffusion_solver.F:    ! Diffuse Water Vapor Tracers !
+./phys/module_cam_bl_diffusion_solver.F:    ! Note that the same routine is used for temperature, momentum and tracers,          !
+./phys/module_cam_bl_eddy_diff.F:    real(r8), intent(out)   :: kvq(pcols,pver+1)         ! Eddy diffusivity for constituents, moisture and tracers [ m2/s ] (note not having '_out')
+./phys/module_cam_bl_eddy_diff.F:    real(r8), intent(out) :: kvf(pcols,pver+1)    ! Eddy diffusivity for heat and tracers
+./phys/module_cam_bl_eddy_diff.F:    real(r8), intent(out) :: kvh(pcols,pver+1)        ! Eddy diffusivity for heat, moisture, and tracers [ m2/s ]
+./phys/module_cam_constituents.F:  logical, public :: readtrace = .true.             ! true => obtain initial tracer data from IC file
+./phys/module_cam_constituents.F:! Constants for each tracer
+./phys/module_cam_constituents.F:! Lists of tracer names and diagnostics
+./phys/module_cam_constituents.F:   character(len=16), public :: dmetendnam(pcnst)   ! names of dme adjusted tracers (FV)
+./phys/module_cam_constituents.F:   character(len=16), allocatable, public :: dmetendnam(:)   ! names of dme adjusted tracers (FV)
+./phys/module_cam_constituents.F:  integer :: padv = 0                      ! index pointer to last advected tracer
+./phys/module_cam_constituents.F:! set tracer index and check validity, advected tracer
+./phys/module_cam_constituents.F:       write(iulog,*) 'CNST_ADD: advected tracer index greater than pcnst = ', pcnst
+./phys/module_cam_constituents.F:! set tracer name and constants
+./phys/module_cam_constituents.F:    integer :: m                                   ! tracer index
+./phys/module_cam_constituents.F:! Find tracer name in list
+./phys/module_cam_constituents.F:    integer :: m                                   ! tracer index
+./phys/module_cam_constituents.F:    integer :: m                                   ! tracer index
+./phys/module_cam_constituents.F:       write(iulog,*)'CNST_CHK_DIM: number of advected tracer ',padv, ' not equal to pcnst = ',pcnst
+./phys/module_cam_constituents.F:    ! Set names of advected tracer diagnostics
+./phys/module_cam_molec_diff.F:  ! ***** FAKE THIS FOR NOW USING MOLECULAR WEIGHT OF DRY AIR FOR ALL TRACERS ****
+./phys/module_cam_mp_qneg3.F:! Check moisture and tracers for minimum value, reset any below
+./phys/module_cam_mp_qneg3.F:   real(r8), intent(inout) :: q(ncold,lver,lconst_beg:lconst_end) ! moisture/tracer field
+./phys/module_cam_mp_qneg3.F:! Check moisture and tracers for minimum value, reset any below
+./phys/module_cam_mp_qneg3.F:   real(r8), intent(inout) :: q(ncold,lver,lconst_beg:lconst_end) ! moisture/tracer field
+./phys/module_cam_support.F:  integer, parameter :: pcnst = param_num_moist  !Number of tracer constituents for CAM q array 
+./phys/module_cam_support.F:  integer :: pcnst_runtime    = -999888777 !Number of tracer constituents in CAM q array
+./phys/module_cam_support.F:  integer :: gas_pcnst_modal_aero = -999888777 !Number of tracer constituents in CAM q array
+./phys/module_cam_support.F:  integer :: gas_pcnst_modal_aero_pos = -999888777 !Number of tracer constituents in CAM q array
+./phys/module_cu_camzm_driver.F:        ! it is used for tracers of dry mixing ratio type
+./phys/module_cu_camzm.F:   integer, intent(in) :: ncnst                 ! number of tracers to transport
+./phys/module_cu_camzm.F:   real(r8), intent(in) :: q(pcols,pver,ncnst)  ! Tracer array including moisture
+./phys/module_cu_camzm.F:   real(r8), intent(in) :: fracis(pcols,pver,ncnst) ! fraction of tracer that is insoluble
+./phys/module_cu_camzm.F:   real(r8), intent(out) :: dqdt(pcols,pver,ncnst)  ! Tracer tendency array
+./phys/module_cu_camzm.F:   real(r8) const(pcols,pver)    ! Gathered tracer array
+./phys/module_cu_camzm.F:   real(r8) fisg(pcols,pver)     ! gathered insoluble fraction of tracer
+./phys/module_cu_camzm.F:! Interpolate environment tracer values to interfaces
+./phys/module_cu_camzm.F:   integer, intent(in) :: ncnst                 ! number of tracers to transport
+./phys/module_cu_camzm.F:   real(r8), intent(out) :: dqdt(pcols,pver,ncnst)  ! Tracer tendency array
+./phys/module_cu_g3.F:! to determine at run-time whether a particular tracer is in
+./phys/module_cu_g3.F:! to determine at run-time whether a particular tracer is in
+./phys/module_cu_gd.F:! to determine at run-time whether a particular tracer is in
+./phys/module_cu_gf.F:! to determine at run-time whether a particular tracer is in
+./phys/module_cu_kfeta.F:! to determine at run-time whether a particular tracer is in
+./phys/module_cu_kf.F:! to determine at run-time whether a particular tracer is in 
+./phys/module_cumulus_driver.F:                 ! Optional moisture tracers 
+./phys/module_cumulus_driver.F:                 ! Optional moisture tracer flags 
+./phys/module_cumulus_driver.F:                      ! optional moisture tracers
+./phys/module_cumulus_driver.F:! to determine at run-time whether a particular tracer is in
+./phys/module_cu_tiedtke.F:! to determine at run-time whether a particular tracer is in
+./phys/module_data_cam_mam_aero.F:!   nspec_amode_nontracer(m) = number of "non-tracer" chemical
+./phys/module_data_cam_mam_asect.F:!   ncomp_plustracer_aer(t) = number of "regular" plus "tracer"
+./phys/module_data_cam_mam_asect.F:!	"Tracer" components are optional, and can be used to track source 
+./phys/module_data_cam_mam_asect.F:!	both regular and tracer components.]
+./phys/module_data_cam_mam_asect.F:      	  ncomp_plustracer_aer( maxd_atype ),   &
+./phys/module_data_cam_mam_asect.F:!   the different aerosol chemical (or tracer) components
+./phys/module_diagnostics_driver.F:                                   moist, chem, tracer, scalar,         &
+./phys/module_diagnostics_driver.F:      USE module_state_description, ONLY: num_moist, num_chem, num_tracer, num_scalar, &
+./phys/module_diagnostics_driver.F:      REAL , DIMENSION(ims:ime,kms:kme,jms:jme,num_tracer) , INTENT(IN) :: tracer
+./phys/module_gocart_seasalt.F:  REAL*8, TARGET :: tcms(imx,jmx,lmx,nmx) ! tracer mass (kg; kgS for sulfur case)
+./phys/module_lightning_driver.F:                            ! LNOx tracers (chemistry only)
+./phys/module_mp_cammgmp_driver.F:    character*40            :: name    ! param and tracer name for qneg3
+./phys/module_pbl_driver.F:             !  Optional moisture tracers
+./phys/module_pbl_driver.F:             !  Optional moisture tracer flags
+./phys/module_pbl_driver.F:! for pbl mixing of scalars and tracers
+./phys/module_pbl_driver.F:     &        ,tracer,tracer_tend,num_tracer                         &
+./phys/module_pbl_driver.F:     &        ,scalar_pblmix,tracer_pblmix                           &
+./phys/module_pbl_driver.F:   INTEGER,    OPTIONAL,  INTENT(IN   )    ::     scalar_pblmix, tracer_pblmix
+./phys/module_pbl_driver.F:   INTEGER,    INTENT(IN   )    ::     num_scalar, num_tracer
+./phys/module_pbl_driver.F:! to determine at run-time whether a particular tracer is in
+./phys/module_pbl_driver.F:                      ! optional moisture tracers
+./phys/module_pbl_driver.F:    REAL , OPTIONAL   ,DIMENSION(ims:ime,kms:kme,jms:jme,num_tracer),INTENT(INOUT)   :: tracer
+./phys/module_pbl_driver.F:    REAL , OPTIONAL   ,DIMENSION(ims:ime,kms:kme,jms:jme,num_tracer),INTENT(INOUT)   :: tracer_tend
+./phys/module_pbl_driver.F:          IF(tracer_pblmix .GT. 0)THEN
+./phys/module_pbl_driver.F:            CALL diff4d  (DT=dtbl,DZ=dz8w, SCALAR=tracer, is_scalar=.false.  &
+./phys/module_pbl_driver.F:              ,SCALAR_TEND=tracer_tend      &
+./phys/module_pbl_driver.F:              ,NUM_SCALAR=num_tracer, PARAM_FIRST_SCALAR=param_first_scalar &
+./phys/module_ra_cam.F:  real(r8), intent(in) :: qm1(pcols,pver,ppcnst) ! Specific humidity and tracers
+./phys/module_ra_cam.F:   real(r8), intent(in) :: qm1(pcols,pver,ppcnst) ! Specific humidity and tracers
+./phys/module_ra_cam.F:!  o ixtrcg   => indx of advected n2o tracer
+./phys/module_ra_cam.F:!  o ixtrcg+1 => indx of advected ch4 tracer
+./phys/module_ra_cam.F:!  o ixtrcg+2 => indx of advected cfc11 tracer
+./phys/module_ra_cam.F:!  o ixtrcg+3 => indx of advected cfc12 tracer
+./phys/module_ra_clWRF_support.F:  SUBROUTINE orig_val(tracer,model,out)
+./phys/module_ra_clWRF_support.F:    CHARACTER(LEN=*), INTENT(IN) :: tracer  ! The trace gas name
+./phys/module_ra_clWRF_support.F:       IF (tracer .eq. "CO2") THEN
+./phys/module_ra_clWRF_support.F:       ELSE IF (tracer .eq. "N2O") THEN
+./phys/module_ra_clWRF_support.F:       ELSE IF (tracer .eq. "CH4") THEN
+./phys/module_ra_clWRF_support.F:       ELSE IF (tracer .eq. "CFC11") THEN
+./phys/module_ra_clWRF_support.F:       ELSE IF (tracer .eq. "CFC12") THEN
+./phys/module_ra_clWRF_support.F:             WRITE(message,*) 'CLWRF : Trace gas ',tracer,' not valid for scheme ',model
+./phys/module_ra_clWRF_support.F:       IF (tracer .eq. "CO2") THEN
+./phys/module_ra_clWRF_support.F:       ELSE IF ((tracer .eq. "N2O") .or. &
+./phys/module_ra_clWRF_support.F:                (tracer .eq. "CH4")) THEN
+./phys/module_ra_clWRF_support.F:             WRITE(message,*) 'CLWRF : Trace gas ',tracer,' not valid for scheme ',model
+./phys/module_ra_clWRF_support.F:       IF (tracer .eq. "CO2") THEN
+./phys/module_ra_clWRF_support.F:       ELSE IF (tracer .eq. "N2O") THEN
+./phys/module_ra_clWRF_support.F:       ELSE IF (tracer .eq. "CH4") THEN
+./phys/module_ra_clWRF_support.F:       ELSE IF (tracer .eq. "CFC11") THEN
+./phys/module_ra_clWRF_support.F:       ELSE IF (tracer .eq. "CFC12") THEN
+./phys/module_ra_clWRF_support.F:             WRITE(message,*) 'CLWRF : Trace gas ',tracer,' not valid for scheme ',model
+./phys/module_radiation_driver.F:! a variable number of moisture tracers, depending on the physics 
+./phys/module_radiation_driver.F:! highest numbered index of active moisture tracers the integer argument
+./phys/module_radiation_driver.F:! n_moist (note: the number of tracers at run time is the quantity
+./phys/module_radiation_driver.F:! <tt>n_moist - PARAM_FIRST_SCALAR + 1</tt> , not n_moist. Individual tracers
+./phys/module_radiation_driver.F:! may be indexed from moist by the Registry name of the tracer prepended
+./phys/module_radiation_driver.F:! indices for each tracer is defined in module_state_description and
+./phys/module_sf_clm.F:   ! for dry deposition of chemical tracers
+./phys/module_sf_clm.F:     ! Dry Deposition of chemical tracers (Wesely (1998) parameterizaion)
+./phys/module_shallowcu_driver.F:                 ! Optional moisture tracers 
+./phys/module_shallowcu_driver.F:                 ! Optional moisture tracer flags 
+./phys/module_shallowcu_driver.F:                      ! optional moisture tracers
+./phys/module_shallowcu_driver.F:                     ! optional scalar tracers !BSINGH
+./phys/module_shallowcu_driver.F:! to determine at run-time whether a particular tracer is in
+./phys/module_shcu_camuwshcu_driver.F:                              moist    !moist tracer array
+./phys/module_shcu_camuwshcu_driver.F:                              chem    !moist tracer array
+./phys/module_shcu_camuwshcu_driver.F:                             moist8, & !tracer array for CAM routines
+./phys/module_shcu_camuwshcu_driver.F:                         tnd_tracer    !tracer tendency
+./phys/module_shcu_camuwshcu_driver.F:  INTEGER :: ncnst         !number of tracers
+./phys/module_shcu_camuwshcu_driver.F:        !Flip the tracer array -
+./phys/module_shcu_camuwshcu_driver.F:        !shift tracer dimension down one to remove "blank" index and
+./phys/module_shcu_camuwshcu_driver.F:             stnd, utnd, vtnd, tnd_tracer,              &
+./phys/module_shcu_camuwshcu_driver.F:              rqcnshten(i,k,j) = (tnd_tracer(1,kflip,m)+qcnten_det(1,kflip))/(1. - qv(i,k,j))
+./phys/module_shcu_camuwshcu_driver.F:              rqinshten(i,k,j) = (tnd_tracer(1,kflip,m)+qinten_det(1,kflip))/(1. - qv(i,k,j))
+./phys/module_shcu_camuwshcu_driver.F:           call physics_update(lchnk,ztodt,moist8,tnd_tracer,state_s,ptend_s,ptend_name,ptend_lq,ptend_ls,pcnst)
+./phys/module_shcu_camuwshcu.F:    real(r8), intent(in)    :: tr0_inv(mix,mkx,ncnst)   !  Environmental tracers [ #, kg/kg ]
+./phys/module_shcu_camuwshcu.F:    real(r8), intent(out)   :: trten_inv(mix,mkx,ncnst) !  Tendency of tracers [ #/s, kg/kg/s ]
+./phys/module_shcu_camuwshcu.F:    real(r8)                :: tr0(mix,mkx,ncnst)       !  Environmental tracers [ #, kg/kg ]
+./phys/module_shcu_camuwshcu.F:    real(r8)                :: trten(mix,mkx,ncnst)     !  Tendency of tracers [ #/s, kg/kg/s ]
+./phys/module_shcu_camuwshcu.F:    integer                 :: m                        !  Tracer index [ no ]
+./phys/module_shcu_camuwshcu.F:    real(r8), intent(in)    :: tr0_in(mix,mkx,ncnst)          !  Environmental tracers [ #, kg/kg ]
+./phys/module_shcu_camuwshcu.F:    real(r8), intent(out)   :: trten_out(mix,mkx,ncnst)       !  Tendency of tracers [ #/s, kg/kg/s ]
+./phys/module_shcu_camuwshcu.F:    real(r8)                   trflx_out(mix,0:mkx,ncnst)     !  Updraft/pen.entrainment tracer flux [ #/m2/s, kg/kg/m2/s ] 
+./phys/module_shcu_camuwshcu.F:    real(r8)    tr0(mkx,ncnst)                                !  Environmental tracers [ #, kg/kg ]
+./phys/module_shcu_camuwshcu.F:    real(r8)    sstr0(mkx,ncnst)                              !  Linear slope of environmental tracers [ #/Pa, kg/kg/Pa ]
+./phys/module_shcu_camuwshcu.F:    real(r8)    trten(mkx,ncnst)                              !  Tendency of tracers [ #/s, kg/kg/s ]
+./phys/module_shcu_camuwshcu.F:    real(r8)    trflx(0:mkx,ncnst)                            !  Flux of tracers due to convection [ # * kg/m2/s, kg/kg * kg/m2/s ]
+./phys/module_shcu_camuwshcu.F:    real(r8)    trflx_d(0:mkx)                                !  Adjustive downward flux of tracers to prevent negative tracers
+./phys/module_shcu_camuwshcu.F:    real(r8)    trflx_u(0:mkx)                                !  Adjustive upward   flux of tracers to prevent negative tracers
+./phys/module_shcu_camuwshcu.F:    real(r8)    trmin                                         !  Minimum concentration of tracers allowed
+./phys/module_shcu_camuwshcu.F:    real(r8)    tru(0:mkx,ncnst)                              !  Updraft tracers [ #, kg/kg ]
+./phys/module_shcu_camuwshcu.F:    real(r8)    tru_emf(0:mkx,ncnst)                          !  Penetrative Downdraft tracers at entraining interfaces [ #, kg/kg ]    
+./phys/module_shcu_camuwshcu.F:    real(r8)  tru_out(mix,0:mkx,ncnst)                        !  Updraft tracers [ #, kg/kg ]   
+./phys/module_shcu_camuwshcu.F:    real(r8)  tru_emf_out(mix,0:mkx,ncnst)                    !  Penetratively entrained tracers [ #, kg/kg ]
+./phys/module_shcu_camuwshcu.F:        !  ! This limitation does not conserve grid-mean tracers and future
+./phys/module_shcu_camuwshcu.F:        !  ! refinement is required for tracer-conserving treatment.
+./phys/module_shcu_camuwshcu.F:       ! Tendencies of tracers !
+./phys/module_surface_driver.F:             !  Optional moisture tracers
+./phys/module_surface_driver.F:             !  Optional moisture tracer flags
+./phys/module_surface_driver.F:! to determine at run-time whether a particular tracer is in
+./phys/module_surface_driver.F:                      ! optional moisture tracers
+./share/input_wrf.F:! tracer indeces so that p%rfield_4d can be passsed in without arguments,
+./share/input_wrf.F:            ENDDO  ! loop over tracers
+./share/output_wrf.F:    INTEGER scalar_pblmix, tracer_pblmix, grav_settling
+./share/output_wrf.F:    CALL nl_get_tracer_pblmix  ( grid%id , tracer_pblmix )
+./share/output_wrf.F:      CALL wrf_put_dom_ti_integer   ( fid, 'TRACER_PBLMIX', tracer_pblmix , 1 , ierr )
+./share/output_wrf.F:! tracer indeces so that p%rfield_4d can be passsed in without arguments,
+./share/output_wrf.F:              ENDDO  ! loop over tracers
