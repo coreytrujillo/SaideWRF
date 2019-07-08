@@ -5,3 +5,5 @@ tracer_images/
 .ipynb_checkpoints/
 *.png
 *.mp4
+WRF/compile.log
+WRF/configure.wrf.backup
