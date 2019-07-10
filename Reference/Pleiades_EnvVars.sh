@@ -22,5 +22,5 @@ export I_MPI_FABRICS=shm:tcp
 export WRF_CHEM=1
 export WRF_KPP=0
 # export FLEX_LIB_DIR='/usr/lib64'
-export JASPERINC='/home6/ctrujil1/compile/jasper-2.0.14/instl/lib64/'
-export JASPERLIB='/home6/ctrujil1/compile/jasper-2.0.14/instl/include/'
+export JASPERINC='/home6/ctrujil1/libraries/jasper/include/'
+export JASPERLIB='/home6/ctrujil1/libraries/jasper/lib/'
