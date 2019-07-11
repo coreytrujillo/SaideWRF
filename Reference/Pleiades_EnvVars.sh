@@ -1,6 +1,6 @@
 #!/bin/bash
 module purge
-module load comp-intel/2018.3.222 hdf4/4.2.12 mpi-hpe/mpt.2.17r13 hdf5/1.8.18_mpt netcdf/4.4.1.1_mpt
+module load comp-intel/2018.3.222 hdf4/4.2.12 mpi-hpe/mpt.2.17r13 hdf5/1.8.18_mpt netcdf/4.4.1.1_mpt matlab/2017b
 export WRF_EM_CORE=1
 export WRF_NMM_CORE=0
 export WRF_DA_CORE=0
