@@ -10,6 +10,6 @@ wps/configure.wps.backup
 wps/util/src/int2nc.o
 WRF/compile.log
 WRF/configure.wrf.backup
-WRF/**.mod
-WRF/**.o
+WRF/*.mod
+WRF/*.o
 
