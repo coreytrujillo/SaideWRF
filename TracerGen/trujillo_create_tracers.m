@@ -19,7 +19,7 @@ clc;clear;clf; format compact;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%% Get lat lon data from domain as defined in wrfinput file %%%%%%%%%
-wrf_in = 'wrfinput_d01';
+wrf_in = '../wrfinput_d01';
 [latlon_data] = truj_read_nc(wrf_in, {'XLAT', 'XLONG'});
 LAT = double(latlon_data{1}(:,:,1));
 LON = double(latlon_data{2}(:,:,1));
@@ -68,25 +68,26 @@ Name_LAT = [41.5 41.5 37.5 37.5];
 %                              Plot regions                               %
 %                                                                         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+PLOT = 0; % 1 for plots, zero for no plots
 % Load and Plot Map Boundary lines and set proper axes
-load 'm_coasts.mat';
-load coast.mat
-load conus.mat
-figure(1)
-plot(long, lat, 'k-')
-axis([lon_0 lon_f lat_0 lat_f])
-hold on
-plot(uslon, uslat, 'k')
-plot(statelon, statelat, 'k')
+if PLOT==1 % Turn on or off plotting 
+	load 'm_coasts.mat';
+	load coast.mat
+	load conus.mat
+	figure(1)
+	plot(long, lat, 'k-')
+	axis([lon_0 lon_f lat_0 lat_f])
+	hold on
+	plot(uslon, uslat, 'k')
+	plot(statelon, statelat, 'k')
 
-% Plot Regions
-for i = 1:N_reg
-    plot([reg_x{i} reg_x{i}(1)], [reg_y{i} reg_y{i}(1)])
-    text(Name_LON(i), Name_LAT(i), Name_reg(i));
+	% Plot Regions
+	for i = 1:N_reg
+    	plot([reg_x{i} reg_x{i}(1)], [reg_y{i} reg_y{i}(1)])
+	    text(Name_LON(i), Name_LAT(i), Name_reg(i));
+	end
+	hold off
 end
-hold off
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                         %
@@ -102,8 +103,10 @@ indx_out = indx_in; % Grid cells outside of a particular region
 indx_in{N_reg + 1} = logical(zeros(size(LAT))); 
 
 % Plot settings
-figure(2)
-subplot_axis = ceil(sqrt(N_reg));
+if PLOT==1
+	figure(2)
+	subplot_axis = ceil(sqrt(N_reg));
+end
 
 % Define variables for indices in and out of each region and plot 
 for i = 1:N_reg
@@ -123,17 +126,19 @@ end
 indx_in{N_reg + 1} = ~indx_out{N_reg + 1};
 
 %  Optional plot of outside regions
-if all(indx_out{N_reg + 1}==0)
-    disp('Regions cover entire Domain!')
-else % This will be relevant if regions are not defined automatically 
-    disp('Regions do not cover entire domain - see Figure 3')
-    figure(3)
-    subplot(2,1,1)
-    title('Area covered by defined regions')
-    contourf(LON, LAT, indx_in{N_reg+1})
-    title('Area NOT covered by defined regions')
-    subplot(2,1,2)
-    contourf(LON, LAT, indx_out{N_reg+1})
+if PLOT == 1
+	if all(indx_out{N_reg + 1}==0)
+		disp('Regions cover entire Domain!')
+	else % This will be relevant if regions are not defined automatically 
+		disp('Regions do not cover entire domain - see Figure 3')
+		figure(3)
+		subplot(2,1,1)
+		title('Area covered by defined regions')
+		contourf(LON, LAT, indx_in{N_reg+1})
+		title('Area NOT covered by defined regions')
+		subplot(2,1,2)
+		contourf(LON, LAT, indx_out{N_reg+1})
+	end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -168,7 +173,7 @@ anthro_invar = 'E_CO';
 % Output path for wrffire files with tracer inputs
 tr_outpath = 'out/';
 
-%%%%%%%%%%%%%%%%%%%%% Initialize files adn constants %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%% Initialize files and constants %%%%%%%%%%%%%%%%%%%%%%
 % If output path does not exist, create it
 if 7~=exist(tr_outpath,'dir')
     unix(['mkdir ' tr_outpath]);
