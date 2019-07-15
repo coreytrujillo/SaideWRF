@@ -11,10 +11,10 @@ EXEC = ${BASE}.exe
 OBJ = ${BASE}.F
 
 ${EXEC}:		${OBJ}
-		${FC} ${FFLAGS} $@ $<
+	${FC} ${FFLAGS} $@ $<
 
 cleanup:
-		rm -f ${OBJS} *.mod 
+	rm -f ${OBJS} *.mod 
 
 clean:
-		rm -f core ${EXEC} ${OBJS} *.mod
+	rm -f core ${EXEC} ${OBJS} *.mod al2radm2.outp scratem*

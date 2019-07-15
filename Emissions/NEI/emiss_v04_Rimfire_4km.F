@@ -244,8 +244,8 @@
      DATA NAMPM2 /'PMFINE','PSO4','PNO3','POC','PEC','PNCOM','PNH4','PAL', &
        'PCA','PFE','PH2O','PMG','PMOTHR','PK','PMN','PCL','PNA','PTI','PSI'/
 
-      DATA POINDIR / '/met1/WRF/DATA/NEI/point/' /
-      DATA AREADIR / '/met1/WRF/DATA/NEI/' /
+      DATA POINDIR / '/nobackup/ctrujil1/DATA/NEI/point/' /
+      DATA AREADIR / '/nobackup/ctrujil1/DATA/NEI/' /
 
 !
 !
