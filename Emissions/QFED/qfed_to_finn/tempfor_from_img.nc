@@ -1,0 +1,1 @@
+//nobackup/ctrujil1/DATA/QFED/auxfiles/tempfor_from_img.nc

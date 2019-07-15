@@ -1,0 +1,1 @@
+//nobackup/ctrujil1/DATA/QFED/auxfiles/tropfor_from_img.nc

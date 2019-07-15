@@ -1,0 +1,1 @@
+//nobackup/ctrujil1/DATA/QFED/auxfiles/grass_from_img.nc
