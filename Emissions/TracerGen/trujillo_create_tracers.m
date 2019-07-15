@@ -102,24 +102,24 @@ indx_out = indx_in; % Grid cells outside of a particular region
 %  Define a region in domain but out of all other defined regions
 indx_in{N_reg + 1} = logical(zeros(size(LAT))); 
 
-% Plot settings
 if PLOT==1
+	% Plot settings
 	figure(2)
 	subplot_axis = ceil(sqrt(N_reg));
-end
 
-% Define variables for indices in and out of each region and plot 
-for i = 1:N_reg
-    % Define grid cell values for each region
-    indx_in{i} = inpolygon(LON, LAT, reg_x{i}, reg_y{i}); % 1s in region 0s out
-    indx_out{i} = ~indx_in{i};  % 1s out of region, 0s in
-    
-    % Plot
-    subplot(subplot_axis, subplot_axis, i)
-    contourf(LON,LAT,indx_in{i});
-    
-    % Put a 1 in a cell in a defined region
-    indx_out{N_reg + 1} = indx_in{N_reg+1} & indx_in{i};
+	% Define variables for indices in and out of each region and plot 
+	for i = 1:N_reg
+		% Define grid cell values for each region
+		indx_in{i} = inpolygon(LON, LAT, reg_x{i}, reg_y{i}); % 1s in region 0s out
+		indx_out{i} = ~indx_in{i};  % 1s out of region, 0s in
+		
+		% Plot
+		subplot(subplot_axis, subplot_axis, i)
+		contourf(LON,LAT,indx_in{i});
+		
+		% Put a 1 in a cell in a defined region
+		indx_out{N_reg + 1} = indx_in{N_reg+1} & indx_in{i};
+	end
 end
 
 % All grid cells in domain that are outside of all regions
@@ -167,7 +167,7 @@ wrffire_basename = 'wrffirechemi_d01_';
 wrffire_invar = 'ebu_in_co';
 
 % Anthropogenic Emissions Names
-anthro_pref = 'wrfchemi_';
+anthro_pref = '../../WRF/test/em_real/wrfchemi_';
 anthro_invar = 'E_CO';
 
 % Output path for wrffire files with tracer inputs
