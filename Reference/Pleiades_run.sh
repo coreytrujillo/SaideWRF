@@ -1,11 +1,11 @@
+# This script runs Pablo Saide's version of WRF-Chem with Tracers
+# On Pleiades. It assumes WRF and WPS are already compiled
 
-
+# Export necessary variables
 export WRFRUN_DIR=$PBS_O_WORKDIR/WRF/test/em_real/
 export EMIS_DIR=$PBS_O_WORDIR/Emissions 
-#export QFED_DIR=$EMIS_DIR/QFED
-#export NEI_DIR=$EMIS_DIR/NEI
-export START_DATE=XXX
-export END_DATE=XXXX
+export START_DATE=(2013 08 22 00 00 00)
+export END_DATE=(2013 08 22 12 00 00)
 
 source Reference/Pleiades_EnvVars.sh
 
