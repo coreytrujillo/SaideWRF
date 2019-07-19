@@ -8,8 +8,11 @@ tracer_images/
 wps/compile.log
 wps/configure.wps.backup
 wps/util/src/int2nc.o
+wps/geogrid.log
+wps/ungrib.log
 WRF/compile.log
+WRF/emcompile.log
 WRF/configure.wrf.backup
-WRF/*.mod
-WRF/*.o
+Emissions/wrfinput_d01
+
 
