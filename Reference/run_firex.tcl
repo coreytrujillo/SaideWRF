@@ -36,7 +36,7 @@ set wps "yes"
 
 # Initialize log
 set log_name [file join $REF_DIR run_[clock format [clock seconds] -format "%Y-%m-%d_%H:%M:%S" ]\.log]
-set log [open $log_name +w]
+set log [open $log_name w+]
 
 # ###########################################################################
 #
@@ -78,7 +78,6 @@ set edd   [clock format $end_date -format %d]
 set ehh   [clock format $end_date -format %H]
 
 
-
 # ###########################################################################
 #
 # Download necessary data
@@ -91,7 +90,7 @@ set ehh   [clock format $end_date -format %H]
 # Run WPS
 # 
 # ###########################################################################
-if { $wps == "yes" }{
+if { $wps == "yes" } {
 	puts $log "# ---------------------------------------------------------"
 	flush $log
 	
@@ -107,7 +106,7 @@ if { $wps == "yes" }{
 	if {[llength [glob -nocomplain [file join *nam*]]] > 0} {eval "file delete -force [glob -nocomplain [file join *nam*]]"}
 
 	# Link NAM data
-	set c [catch { eval "exec ./link_grib.csh [file join $DATA_DIR NAM $sdate *nam.*]" } msg]
+	set c [catch { eval "exec ./link_grib.csh [file join $DATA_DIR NAM $sdate]" } msg]
 	
 	
 	
