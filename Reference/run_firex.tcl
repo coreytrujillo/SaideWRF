@@ -29,7 +29,7 @@ set WRF_DIR [file join $MAIN_DIR WRF]
 set OUT_DIR [file join $MAIN_DIR Output]
 
 # Source Environment Variables
-source [file join $REF_DIR Pleiades_EnvVars.sh]
+eval "source $REF_DIR/Pleiades_EnvVars.sh"
 
 
 # ###########################################################################
