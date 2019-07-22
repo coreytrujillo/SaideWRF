@@ -107,7 +107,7 @@ if { $wps == "yes" } {
 
 	# Link NAM data
 	set c [catch { eval "exec ./link_grib.csh [file join $DATA_DIR NAM $sdate]" } msg]
-	if{[llength [glob -noclompain VTable]] > 0 } {eval "file delete -force VTable" }
+	if {[llength [glob -nocomplain VTable]] > 0 } {eval "file delete -force VTable" }
 	exec ln -sf ungrib/Variable_Tables/Vtable.NAM Vtable
 	
 	
