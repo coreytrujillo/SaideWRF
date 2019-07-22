@@ -92,6 +92,8 @@ set ehh   [clock format $end_date -format %H]
 # ###########################################################################
 if { $wps == "yes" } {
 	puts $log "# ---------------------------------------------------------"
+	puts $log "# Start wps!"
+	puts $log "# ---------------------------------------------------------"
 	flush $log
 	
 	cd $WPS_DIR
@@ -105,13 +107,43 @@ if { $wps == "yes" } {
 	if {[llength [glob -nocomplain [file join gdas*]]] > 0} {eval "file delete -force [glob -nocomplain [file join gdas*]]"}
 	if {[llength [glob -nocomplain [file join *nam*]]] > 0} {eval "file delete -force [glob -nocomplain [file join *nam*]]"}
 
-	# Link NAM data
-	set c [catch { eval "exec ./link_grib.csh [file join $DATA_DIR NAM $sdate]" } msg]
+	# Link NAM data and VTable
+	eval "exec ./link_grib.csh [file join $DATA_DIR NAM $sdate]"
 	if {[llength [glob -nocomplain VTable]] > 0 } {eval "file delete -force VTable" }
 	exec ln -sf ungrib/Variable_Tables/Vtable.NAM Vtable
+
+	# Create sedcommand.sed file and fill it with commands
+#	set sedcommand [open sedcommand.sed w+]
+	exec sed -i '/start_date/c\start_date		=$wrf_yyyy\-$wrf_mm\-$wrf_dd\_$wrf_hh:00:00' namelist.wps
+#	puts $sedcommand "s,_START_,$wrf_yyyy\-$wrf_mm\-$wrf_dd\_$wrf_hh:00:00,g"
+#	puts $sedcommand "s,_END_,$eyyyy\-$emm\-$edd\_$ehh\:00:00,g"
+#	close $sedcommand
+#	exec sed -f sedcommand.sed $REFERENCE_DIR/namelist.wps.sed  > namelist.wps
+#	file delete -force sedcommand.sed
+
+
+	# Run ungrib.exe
+#	puts $log "# ---------------------------------------------------------"
+#	puts $log "# Run ungrib.exe!"
+#	puts $log "# ---------------------------------------------------------"
+#	exec "./ungrib.exe"
+
+	# Run metgrid.exe
+#	puts $log "# ---------------------------------------------------------"
+#	puts $log "# Run metgrid.exe!"
+#	puts $log "# ---------------------------------------------------------"
+#	exec "./metgrid.exe"	
+
+	# Run geogrid.exe	
+#	puts $log "# ---------------------------------------------------------"
+#	puts $log "# Run geogrid.exe!" 
+#	puts $log "# ---------------------------------------------------------"
+#	exec "./geogrid.exe"
 	
-	
-	
+#	puts $log "# ---------------------------------------------------------"
+#	puts $log "# End WPS!"
+#	puts $log "# ---------------------------------------------------------"
+#	flush $log
 }
 
 # ###########################################################################
