@@ -46,7 +46,7 @@ set log [open $log_name +w]
 
 
 # Define start date and time
-set start_date_str "20190619"; # Start Date
+set start_date_str "20130820"; # Start Date
 set shh 06; # Simulation start hour in Mountain time
 
 if { $start_date_str > 0} {
@@ -67,7 +67,7 @@ set sdd   [lindex $start_date 2] ;# Day
 set sdate $syyyy$smm$sdd
 
 # Define simulation length in hours
-set time_step 84
+set time_step 12
 
 # Set final date variables based on simulation lengths
 append end_date [lindex $start_date 0] [lindex $start_date 1] [lindex $start_date 2]
