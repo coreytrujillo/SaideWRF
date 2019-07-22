@@ -5,14 +5,20 @@ tracer_images/
 .ipynb_checkpoints/
 *.png
 *.mp4
+*.mod
+*.o
 wps/compile.log
 wps/configure.wps.backup
 wps/util/src/int2nc.o
 wps/geogrid.log
+wps/*.inc
+wps/*.f90
 wps/ungrib.log
 WRF/compile.log
 WRF/emcompile.log
 WRF/configure.wrf.backup
+WRF/*.o
 Emissions/wrfinput_d01
-
+!wps/util/src/int2nc.o
+!wps/util/src/module_map_utils.o
 
