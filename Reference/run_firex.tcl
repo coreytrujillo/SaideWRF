@@ -91,7 +91,6 @@ set sdate $syyyy$smm$sdd
 # set sdate $syyyy-$smm-$sdd\_$shh:00:00
 
 set start_datetime [clock add [clock scan $sdate] $shh hours]
-puts $start_datetime 
 
 # Define simulation length in hours
 set time_step 12
@@ -103,28 +102,6 @@ set emm   [clock format $end_datetime -format %m]
 set edd   [clock format $end_datetime -format %d]
 set ehh   [clock format $end_datetime -format %H]
 
-puts $eyyyy$emm$edd$ehh
-exit
-
-# Set final date variables based on simulation lengths
-#append end_date [lindex $start_date 0] [lindex $start_date 1] [lindex $start_date 2]
-append end_date [lindex $sdatetime 0] [lindex $sdatetime 1] [lindex $sdatetime 2] [lindex $sdatetime 3]
-puts end_date1
-puts $end_date
-#set end_date [expr [clock scan $end_date]+[expr $time_step*3600]]
-set end_date [clock add [clock scan $end_date] $time_step hours]
-set edate [clock format $end_date -format %Y-%m-%d_%H]
-set eyyyy [clock format $end_date -format %Y]
-set emm   [clock format $end_date -format %m]
-set edd   [clock format $end_date -format %d]
-set ehh   [clock format $end_date -format %H]
-
-puts edate
-puts $edate
-puts end_date
-puts $end_date
-puts $edd
-puts $ehh
 
 # ###########################################################################
 #
