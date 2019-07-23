@@ -45,38 +45,86 @@ set log [open $log_name w+]
 # ###########################################################################
 
 
-# Define start date and time
-set start_date_str "20130820"; # Start Date
-set shh 06; # Simulation start hour in Mountain time
+# Define start date and time UTC
+# set start_date_str "20130820"; # Start Date
+# set shh 12
+# set start_hr_MT 12; # Simulation start hour in Mountain time
 
-if { $start_date_str > 0} {
-	set start_date [string range $start_date_str 0 3] ;# Year
-	lappend start_date [string range $start_date_str 4 5] ;# Month
-	lappend start_date [string range $start_date_str 6 7] ;# Day
-	
-	} else {
-	set secondi [clock seconds]
-	# Convert MDT to UTC: +6 hours  
-	set secondi [expr $secondi + 3600*6]; 
-	set start_date [split [clock format $secondi -format %Y:%m:%d] ":"] ;
-}
+# if { $start_date_str > 0} {
+#	set start_date [string range $start_date_str 0 3] ;# Year
+#	lappend start_date [string range $start_date_str 4 5] ;# Month
+#	lappend start_date [string range $start_date_str 6 7] ;# Day
+#	lappend start_date $shh; # Hour
+# 
+#	} else {
+#	set secondi [clock seconds]
+#	# Convert MDT to UTC: +6 hours  
+#	set secondi [expr $secondi + 3600*6]; 
+#	set start_date [split [clock format $secondi -format %Y:%m:%d:%H] ":"] ;
+#}
 
-set syyyy [lindex $start_date 0] ;# Year
-set smm   [lindex $start_date 1] ;# Month
-set sdd   [lindex $start_date 2] ;# Day
+#puts start_date
+#puts $start_date
+
+#set syyyy [lindex $start_date 0] ;# Year
+#set smm   [lindex $start_date 1] ;# Month
+#set sdd   [lindex $start_date 2] ;# Day
+#set sdate $syyyy$smm$sdd
+#puts sdate
+#puts $sdate
+
+# set shh [lindex $start_date 3]; # Hour
+#set sdatetime $sdate$shh
+#puts sdatetime
+#puts $sdatetime
+#set sss [clock scan $sdate]
+#set ttt [clock format $sss -format %Y-%m-%d_%H:%M:%S]
+#set vvv [clock add $sss 6 hours]
+#set zzz [clock format $vvv -format %Y-%m-%d_%H:%M:%S]
+#######################################################
+set syyyy 2013
+set smm 08
+set sdd 20
+set shh 12
 set sdate $syyyy$smm$sdd
+
+# set sdate $syyyy-$smm-$sdd\_$shh:00:00
+
+set start_datetime [clock add [clock scan $sdate] $shh hours]
+puts $start_datetime 
 
 # Define simulation length in hours
 set time_step 12
 
+# Set end date
+set end_datetime [clock add $start_datetime $time_step hours]
+set eyyyy [clock format $end_datetime -format %Y]
+set emm   [clock format $end_datetime -format %m]
+set edd   [clock format $end_datetime -format %d]
+set ehh   [clock format $end_datetime -format %H]
+
+puts $eyyyy$emm$edd$ehh
+exit
+
 # Set final date variables based on simulation lengths
-append end_date [lindex $start_date 0] [lindex $start_date 1] [lindex $start_date 2]
-set end_date [expr [clock scan $end_date]+[expr $time_step*3600]]
+#append end_date [lindex $start_date 0] [lindex $start_date 1] [lindex $start_date 2]
+append end_date [lindex $sdatetime 0] [lindex $sdatetime 1] [lindex $sdatetime 2] [lindex $sdatetime 3]
+puts end_date1
+puts $end_date
+#set end_date [expr [clock scan $end_date]+[expr $time_step*3600]]
+set end_date [clock add [clock scan $end_date] $time_step hours]
+set edate [clock format $end_date -format %Y-%m-%d_%H]
 set eyyyy [clock format $end_date -format %Y]
 set emm   [clock format $end_date -format %m]
 set edd   [clock format $end_date -format %d]
 set ehh   [clock format $end_date -format %H]
 
+puts edate
+puts $edate
+puts end_date
+puts $end_date
+puts $edd
+puts $ehh
 
 # ###########################################################################
 #
@@ -91,10 +139,10 @@ set ehh   [clock format $end_date -format %H]
 # 
 # ###########################################################################
 if { $wps == "yes" } {
-	puts $log "# ---------------------------------------------------------"
-	puts $log "# Start wps!"
-	puts $log "# ---------------------------------------------------------"
-	flush $log
+#	puts $log "# ---------------------------------------------------------"
+#	puts $log "# Start wps!"
+#	puts $log "# ---------------------------------------------------------"
+#	flush $log
 	
 	cd $WPS_DIR
 	
@@ -105,7 +153,6 @@ if { $wps == "yes" } {
 	if {[llength [glob -nocomplain [file join met_em.d*]]] > 0} {eval "file delete -force [glob -nocomplain [file join met_em.d*]]"}
 	if {[llength [glob -nocomplain [file join gfs*]]] > 0} {eval "file delete -force [glob -nocomplain [file join gfs*]]"}
 	if {[llength [glob -nocomplain [file join gdas*]]] > 0} {eval "file delete -force [glob -nocomplain [file join gdas*]]"}
-	if {[llength [glob -nocomplain [file join *nam*]]] > 0} {eval "file delete -force [glob -nocomplain [file join *nam*]]"}
 
 	# Link NAM data and VTable
 	eval "exec ./link_grib.csh [file join $DATA_DIR NAM $sdate]"
@@ -113,13 +160,17 @@ if { $wps == "yes" } {
 	exec ln -sf ungrib/Variable_Tables/Vtable.NAM Vtable
 
 	# Create sedcommand.sed file and fill it with commands
-#	set sedcommand [open sedcommand.sed w+]
-	exec sed -i '/start_date/c\start_date		=$wrf_yyyy\-$wrf_mm\-$wrf_dd\_$wrf_hh:00:00' namelist.wps
+	exec cp namelist.wps namelist.wps.sed
+	set sedcommand [open sedcommand.sed w+]
+#	exec sed -i "/start_date/c\start_date		=";#$wrf_yyyy\-$wrf_mm\-$wrf_dd\_$wrf_hh:00:00' namelist.wps
+#	puts $sedcommand "-i /start_date/c\start_date		= 1234"
 #	puts $sedcommand "s,_START_,$wrf_yyyy\-$wrf_mm\-$wrf_dd\_$wrf_hh:00:00,g"
 #	puts $sedcommand "s,_END_,$eyyyy\-$emm\-$edd\_$ehh\:00:00,g"
-#	close $sedcommand
-#	exec sed -f sedcommand.sed $REFERENCE_DIR/namelist.wps.sed  > namelist.wps
-#	file delete -force sedcommand.sed
+	puts $sedcommand "/start_date/c\\ start_date			= '$syyyy\-$smm\-$sdd\_$shh:00:00,'"
+	puts $sedcommand "/end_date/c\\ end_date			= '$eyyyy\-$emm\-$edd\_$ehh:00:00,'"
+	close $sedcommand
+	exec sed -f sedcommand.sed namelist.wps.sed > namelist.wps
+	file delete -force sedcommand.sed namelist.wps.sed
 
 
 	# Run ungrib.exe
