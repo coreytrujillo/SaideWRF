@@ -27,6 +27,7 @@ set EMIS_DIR [file join $MAIN_DIR Emissions]
 set REF_DIR [file join $MAIN_DIR Reference]
 set WPS_DIR [file join $MAIN_DIR wps]
 set WRF_DIR [file join $MAIN_DIR WRF]
+set WRF_RUN_DIR [file join $ WRF_DIR test/em_real]
 set OUT_DIR [file join $MAIN_DIR Output]
 
 # On/off Options
@@ -84,8 +85,8 @@ set log [open $log_name w+]
 #######################################################
 set syyyy 2013
 set smm 08
-set sdd 20
-set shh 12
+set sdd 22
+set shh 00
 set sdate $syyyy$smm$sdd
 
 # set sdate $syyyy-$smm-$sdd\_$shh:00:00
@@ -131,47 +132,47 @@ if { $wps == "yes" } {
 	if {[llength [glob -nocomplain [file join gfs*]]] > 0} {eval "file delete -force [glob -nocomplain [file join gfs*]]"}
 	if {[llength [glob -nocomplain [file join gdas*]]] > 0} {eval "file delete -force [glob -nocomplain [file join gdas*]]"}
 
-	# Link NAM data and VTable
-	eval "exec ./link_grib.csh [file join $DATA_DIR NAM $sdate]"
-	if {[llength [glob -nocomplain VTable]] > 0 } {eval "file delete -force VTable" }
-	exec ln -sf ungrib/Variable_Tables/Vtable.NAM Vtable
 
 	# Create sedcommand.sed file and fill it with commands
 	exec cp namelist.wps namelist.wps.sed
 	set sedcommand [open sedcommand.sed w+]
-#	exec sed -i "/start_date/c\start_date		=";#$wrf_yyyy\-$wrf_mm\-$wrf_dd\_$wrf_hh:00:00' namelist.wps
-#	puts $sedcommand "-i /start_date/c\start_date		= 1234"
-#	puts $sedcommand "s,_START_,$wrf_yyyy\-$wrf_mm\-$wrf_dd\_$wrf_hh:00:00,g"
-#	puts $sedcommand "s,_END_,$eyyyy\-$emm\-$edd\_$ehh\:00:00,g"
-	puts $sedcommand "/start_date/c\\ start_date			= '$syyyy\-$smm\-$sdd\_$shh:00:00,'"
-	puts $sedcommand "/end_date/c\\ end_date			= '$eyyyy\-$emm\-$edd\_$ehh:00:00,'"
+	puts $sedcommand "/start_date/c\\ start_date			= '$syyyy\-$smm\-$sdd\_$shh:00:00',"
+	puts $sedcommand "/end_date/c\\ end_date			= '$eyyyy\-$emm\-$edd\_$ehh:00:00',"
 	close $sedcommand
 	exec sed -f sedcommand.sed namelist.wps.sed > namelist.wps
 	file delete -force sedcommand.sed namelist.wps.sed
 
 
+	# Run geogrid.exe	
+	puts $log "# ---------------------------------------------------------"
+	puts $log "# Run geogrid.exe!" 
+	puts $log "# ---------------------------------------------------------"
+	set c [catch { eval "exec mpiexec_mpt -np 1 ./geogrid.exe" } msg ]
+	
+	# Link NAM data and VTable
+	eval "exec ./link_grib.csh [file join $DATA_DIR NAM $syyyy$smm]"
+	if {[llength [glob -nocomplain VTable]] > 0 } {eval "file delete -force VTable" }
+	exec ln -sf ungrib/Variable_Tables/Vtable.NAM Vtable
+
 	# Run ungrib.exe
-#	puts $log "# ---------------------------------------------------------"
-#	puts $log "# Run ungrib.exe!"
-#	puts $log "# ---------------------------------------------------------"
-#	exec "./ungrib.exe"
+	puts $log "# ---------------------------------------------------------"
+	puts $log "# Run ungrib.exe!"
+	puts $log "# ---------------------------------------------------------"
+	set c [catch { eval "exec ./ungrib.exe" } msg ]
 
 	# Run metgrid.exe
-#	puts $log "# ---------------------------------------------------------"
-#	puts $log "# Run metgrid.exe!"
-#	puts $log "# ---------------------------------------------------------"
-#	exec "./metgrid.exe"	
+	puts $log "# ---------------------------------------------------------"
+	puts $log "# Run metgrid.exe!"
+	puts $log "# ---------------------------------------------------------"
+	set c [catch { eval "exec mpiexec_mpt -np 1 ./metgrid.exe" } msg ]
 
-	# Run geogrid.exe	
-#	puts $log "# ---------------------------------------------------------"
-#	puts $log "# Run geogrid.exe!" 
-#	puts $log "# ---------------------------------------------------------"
-#	exec "./geogrid.exe"
-	
-#	puts $log "# ---------------------------------------------------------"
-#	puts $log "# End WPS!"
-#	puts $log "# ---------------------------------------------------------"
-#	flush $log
+	puts $log "# ---------------------------------------------------------"
+	puts $log "# End WPS!"
+	puts $log "# ---------------------------------------------------------"
+	flush $log
+
+	# link files 
+	exec ln -sf met_* $WRF
 }
 
 # ###########################################################################
