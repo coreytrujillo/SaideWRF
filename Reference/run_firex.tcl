@@ -27,11 +27,12 @@ set EMIS_DIR [file join $MAIN_DIR Emissions]
 set REF_DIR [file join $MAIN_DIR Reference]
 set WPS_DIR [file join $MAIN_DIR wps]
 set WRF_DIR [file join $MAIN_DIR WRF]
-set WRF_RUN_DIR [file join $ WRF_DIR test/em_real]
+set WRF_RUN_DIR [file join $WRF_DIR test/em_real]
 set OUT_DIR [file join $MAIN_DIR Output]
 
 # On/off Options
 set wps "yes"
+set real "yes"
 
 
 
@@ -116,6 +117,7 @@ set ehh   [clock format $end_datetime -format %H]
 # Run WPS
 # 
 # ###########################################################################
+if { 0 == 1 } {
 if { $wps == "yes" } {
 #	puts $log "# ---------------------------------------------------------"
 #	puts $log "# Start wps!"
@@ -171,24 +173,66 @@ if { $wps == "yes" } {
 	puts $log "# ---------------------------------------------------------"
 	flush $log
 
-	# link files 
-	exec ln -sf met_* $WRF
 }
-
 # ###########################################################################
 #
 # Run a real.exe for 24 hours for input files
 # 
 # ###########################################################################
+if { $real == "yes" } {
+	puts $log "# ---------------------------------------------------------"
+	puts $log "# run real.exe "
+	puts $log "# ---------------------------------------------------------"
+	flush $log
 
+	cd $WRF_RUN_DIR
+	
+	
+	# Clean up old files
+	if {[llength [glob -nocomplain met_em.d*]] > 0} {eval "file delete -force [glob -nocomplain met_em.d*]"}
+	if {[llength [glob -nocomplain rsl.*]] > 0} {eval "file delete -force [glob -nocomplain rsl.*]"}
+	if {[llength [glob -nocomplain  wrfout_d*]] > 0} {eval "file delete -force [glob -nocomplain  wrfout_d*]"}
+	if {[llength [glob -nocomplain  wrfrst_d*]] > 0} {eval "file delete -force [glob -nocomplain  wrfrst_d*]"}; # ?????????????????????
+	if {[llength [glob -nocomplain  wrffirechemi_d*]] > 0} {eval "file delete -force [glob -nocomplain  wrffirechemi_d*]"}
+	
 
+	# Create sedcommand.sed file and fill it with commands
+	exec cp namelist.input namelist.input.sed
+	set sedcommand [open sedcommand.sed w+]
+	puts $sedcommand "/start_year/c\\ start_year								= $syyyy,"
+	puts $sedcommand "/start_month/c\\ start_month							= $smm,"
+	puts $sedcommand "/start_day/c\\ start_day							= $sdd,"
+	puts $sedcommand "/start_hour/c\\ start_hour							= $shh,"
+	puts $sedcommand "/end_year/c\\ end_year							= $eyyyy,"
+	puts $sedcommand "/end_month/c\\ end_month							= $emm,"
+	puts $sedcommand "/end_day/c\\ end_day							= $edd,"
+	puts $sedcommand "/end_hour/c\\ end_hour							= $ehh,"
+	close $sedcommand
+	exec sed -f sedcommand.sed namelist.input.sed > namelist.input
+	file delete -force sedcommand.sed namelist.input.sed
 
+	# link met files 
+#	exec "ln -sf $WPS_DIR/met_em.d*"
+#	set c [catch { eval "exec ln -sf [file join $WPS_DIR met_em.d*] ." } msg ]
+	set met_f [glob -nocomplain [file join $WPS_DIR met_em.d*]]
+	foreach x $met_f {
+		exec ln -sf $x .
+	}	
 
+	# run real.exe
+	set c [catch { eval "exec mpiexec_mpt ./real.exe" } msg ]
+
+	# Move input file to Emission directory for next step
+#	exec mv wrfinput_d01 $EMIS_DIR 
+	set c [catch { eval "exec mv wrfinput_d01 $EMIS_DIR" } msg ]
+}
+}
 # ###########################################################################
 #
 # Generate Emissions: Biomass Burning
 # 
 # ###########################################################################
+
 
 
 
