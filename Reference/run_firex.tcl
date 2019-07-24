@@ -33,11 +33,12 @@ set OUT_DIR [file join $MAIN_DIR Output]
 # On/off Options
 set wps "yes"
 set real "yes"
-
+set qfed "yes"
+set nei "yes"
 
 
 # Initialize log
-set log_name [file join $REF_DIR run_[clock format [clock seconds] -format "%Y-%m-%d_%H:%M:%S" ]\.log]
+set log_name [file join $REF_DIR RUN_[clock format [clock seconds] -format "%Y-%m-%d_%H:%M:%S" ]\.log]
 set log [open $log_name w+]
 
 # ###########################################################################
@@ -103,7 +104,7 @@ set eyyyy [clock format $end_datetime -format %Y]
 set emm   [clock format $end_datetime -format %m]
 set edd   [clock format $end_datetime -format %d]
 set ehh   [clock format $end_datetime -format %H]
-
+set edate $eyyyy$emm$edd
 
 # ###########################################################################
 #
@@ -119,10 +120,10 @@ set ehh   [clock format $end_datetime -format %H]
 # ###########################################################################
 if { 0 == 1 } {
 if { $wps == "yes" } {
-#	puts $log "# ---------------------------------------------------------"
-#	puts $log "# Start wps!"
-#	puts $log "# ---------------------------------------------------------"
-#	flush $log
+	puts $log "# ---------------------------------------------------------"
+	puts $log "# Start wps!"
+	puts $log "# ---------------------------------------------------------"
+	flush $log
 	
 	cd $WPS_DIR
 	
@@ -226,25 +227,93 @@ if { $real == "yes" } {
 #	exec mv wrfinput_d01 $EMIS_DIR 
 	set c [catch { eval "exec mv wrfinput_d01 $EMIS_DIR" } msg ]
 }
-}
 # ###########################################################################
 #
-# Generate Emissions: Biomass Burning
+# Generate Emissions: QFED Biomass Burning
 # 
 # ###########################################################################
+if {$qfed == "yes"} {
+	
+	
+	# Format QFED to FINN
+	puts $log "# ---------------------------------------------------------"
+	puts $log "# transform qfed to finn"
+	puts $log "# ---------------------------------------------------------"
+	flush $log
 
+	cd [file join $EMIS_DIR QFED qfed_to_finn]
 
+	exec cp format_QFED_into_FINN_PM10.m format_QFED_into_FINN_PM10.sed
+	set sedcommand [open sedcommand.sed w+]
+	puts $sedcommand "/date_i=/c\\date_i=\[$syyyy $smm $sdd $shh 0 0\]"
+	puts $sedcommand "/date_f=/c\\date_f=\[$eyyyy $emm $edd $ehh 0 0\]"
+	puts $sedcommand "/path_qfed=/c\\path_qfed='/nobackup/ctrujil1/DATA/QFED/$syyyy/$smm/'"
+	close $sedcommand
+	exec sed -f sedcommand.sed format_QFED_into_FINN_PM10.sed > format_QFED_into_FINN_PM10.m
+	file delete -force sedcommand.sed format_QFED_into_FINN_PM10.sed
 
+	puts $log "format_QFED_into_fin_PM10.m edited - running now"
+	flush $log
+	set c [catch { eval "exec /nasa/matlab/2017b/bin/matlab -nodisplay -r format_QFED_into_FINN_PM10" } msg ]
+	puts $log $msg
+	
+	# Format FINN to wrffire
+	puts $log "# ---------------------------------------------------------"
+	puts $log "# transform finn to wrffire"
+	puts $log "# ---------------------------------------------------------"
+	flush $log
+
+	cd [file join $EMIS_DIR QFED finn_to_wrffire]
+	puts $log [file join $EMIS_DIR QFED finn_to_wrffire]
+	if { $sdd < $edd } { set finn_edd [expr $edd - 1] } else { set finn_edd $edd }
+
+	exec cp Header_fire_emis Header_fire_emis.sed 
+	set sedcommand [open sedcommand.sed w+]
+	puts $sedcommand "/start_date/c\\start_date		='$syyyy-$smm-$sdd',"
+	puts $sedcommand "/end_date/c\\end_date		='$syyyy-$smm-$finn_edd',"
+	puts $sedcommand "/fire_filename/c\\fire_filename(1)  = 'QFED_in_FINN_format_pm10_$sdate\_$edate.txt'"
+	close $sedcommand
+	exec sed -f sedcommand.sed Header_fire_emis.sed > Header_fire_emis
+	file delete -force sedcommand.sed Header_fire_emis.sed
+	
+	set c [catch { eval "exec make clean" } msg ]
+	puts $log $msg
+	set c [catch { eval "exec make" } msg ]
+	puts $log $msg
+	set c [catch { eval "exec ./fire_emis.exe < Header_fire_emis" } msg ]
+	puts $log $msg
+
+	puts $log "# ---------------------------------------------------------"
+	puts $log "# QFED donzeo burrito"
+	puts $log "# ---------------------------------------------------------"
+
+}
+}
 
 # ###########################################################################
 #
 # Generate Emissions: Anthropogenic
 # 
 # ###########################################################################
+if { $nei =="yes" } {
+	puts $log "# ---------------------------------------------------------"
+	puts $log "# Start NEI"
+	puts $log "# ---------------------------------------------------------"
+	flush $log
 
+	cd [file join $EMIS_DIR NEI]
+	
+	set c [catch { eval "exec make clean" } msg ]
+	puts $log $msg
+	flush $log
+	set c [catch { eval "exec make" } msg ]
+	puts $log $msg
+	flush $log
+	set c [catch { eval "exec ./emiss_v04_Rimfire_4km.exe" } msg ]
+	puts $log $msg
+	flush $log
 
-
-
+}
 # ###########################################################################
 #
 # Generate Emissions: Tracers
