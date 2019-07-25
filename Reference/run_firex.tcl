@@ -29,12 +29,18 @@ set WPS_DIR [file join $MAIN_DIR wps]
 set WRF_DIR [file join $MAIN_DIR WRF]
 set WRF_RUN_DIR [file join $WRF_DIR test/em_real]
 set OUT_DIR [file join $MAIN_DIR Output]
+set WRFTR_DIR [file join $WRF_DIR test/wrf_tracer]; # WRF tracer directory
+set WRFNF_DIR [file join $WRF_DIR test/wrf_nofire]; # WRF no fire directory
 
 # On/off Options
-set wps "yes"
-set real "yes"
-set qfed "yes"
-set nei "yes"
+set wps "no"
+set real "no"
+set qfed "no"
+set nei "no"
+set tracer_gen "no"
+set wrf "no"
+set wrftr "yes"
+set wrfnf "no"
 
 
 # Initialize log
@@ -188,7 +194,6 @@ if { $real == "yes" } {
 
 	cd $WRF_RUN_DIR
 	
-	
 	# Clean up old files
 	if {[llength [glob -nocomplain met_em.d*]] > 0} {eval "file delete -force [glob -nocomplain met_em.d*]"}
 	if {[llength [glob -nocomplain rsl.*]] > 0} {eval "file delete -force [glob -nocomplain rsl.*]"}
@@ -203,11 +208,15 @@ if { $real == "yes" } {
 	puts $sedcommand "/start_year/c\\ start_year								= $syyyy,"
 	puts $sedcommand "/start_month/c\\ start_month							= $smm,"
 	puts $sedcommand "/start_day/c\\ start_day							= $sdd,"
-	puts $sedcommand "/start_hour/c\\ start_hour							= $shh,"
-	puts $sedcommand "/end_year/c\\ end_year							= $eyyyy,"
-	puts $sedcommand "/end_month/c\\ end_month							= $emm,"
-	puts $sedcommand "/end_day/c\\ end_day							= $edd,"
-	puts $sedcommand "/end_hour/c\\ end_hour							= $ehh,"
+	puts $sedcommand "/start_hour/c\\ start_hour							= 00,"
+	puts $sedcommand "/end_year/c\\ end_year							= $syyyy,"
+	puts $sedcommand "/end_month/c\\ end_month							= $smm,"
+	puts $sedcommand "/end_day/c\\ end_day							= [expr $sdd + 1],"
+	puts $sedcommand "/end_hour/c\\ end_hour							= 00,"
+	puts $sedcommand "/io_form_auxinput5/c\\ io_form_auxinput5							= 0,"
+	puts $sedcommand "/io_form_auxinput7/c\\ io_form_auxinput7							= 0,"
+	puts $sedcommand "/chem_opt/c\\ chem_opt							= 0,"
+	puts $sedcommand "/biomass_burn_opt/c\\ biomass_burn_opt							= 0,"
 	close $sedcommand
 	exec sed -f sedcommand.sed namelist.input.sed > namelist.input
 	file delete -force sedcommand.sed namelist.input.sed
@@ -224,16 +233,18 @@ if { $real == "yes" } {
 	set c [catch { eval "exec mpiexec_mpt ./real.exe" } msg ]
 
 	# Move input file to Emission directory for next step
-#	exec mv wrfinput_d01 $EMIS_DIR 
-	set c [catch { eval "exec mv wrfinput_d01 $EMIS_DIR" } msg ]
+	cd $WRF_RUN_DIR
+	exec ln -sf [file join $WRF_RUN_DIR wrfinput_d01] $EMIS_DIR
+#	set c [catch { eval "exec mv wrfinput_d01 $EMIS_DIR" } msg ]
+#	exec ln -sf wrfinput_d01 $EMIS_DIR
 }
+
 # ###########################################################################
 #
 # Generate Emissions: QFED Biomass Burning
 # 
 # ###########################################################################
 if {$qfed == "yes"} {
-	
 	
 	# Format QFED to FINN
 	puts $log "# ---------------------------------------------------------"
@@ -300,7 +311,8 @@ if { $nei =="yes" } {
 	puts $log "# Start NEI"
 	puts $log "# ---------------------------------------------------------"
 	flush $log
-
+	
+	if { 0 == 1 } {
 	cd [file join $EMIS_DIR NEI]
 	
 	set c [catch { eval "exec make clean" } msg ]
@@ -313,23 +325,170 @@ if { $nei =="yes" } {
 	puts $log $msg
 	flush $log
 
+	set c [catch {eval "exec ln -sf [file join $EMIS_DIR NEI wrfem_00to12Z ] [file join $WRF_RUN_DIR wrfem_00to12z_d01]"}]
+	set c [catch {eval "exec ln -sf [file join $EMIS_DIR NEI wrfem_12to24Z] [file join $WRF_RUN_DIR wrfem_12to24z_d01]"}]
+	}
+	
+	cd $WRF_RUN_DIR
+	
+	exec cp namelist.input namelist.input.sed
+	set sedcommand [open sedcommand.sed w+]
+	puts $sedcommand "/start_year/c\\ start_year							= $syyyy,"
+	puts $sedcommand "/start_month/c\\ start_month						= $smm,"
+	puts $sedcommand "/start_day/c\\ start_day							= $sdd,"
+	puts $sedcommand "/start_hour/c\\ start_hour							= 00,"
+	puts $sedcommand "/end_year/c\\ end_year							= $syyyy,"
+	puts $sedcommand "/end_month/c\\ end_month							= $smm,"
+	puts $sedcommand "/end_day/c\\ end_day							= $sdd,"
+	puts $sedcommand "/end_hour/c\\ end_hour							= 23,"
+	puts $sedcommand "/run_hours/c\\ run_hours							= 23,"
+	puts $sedcommand "/io_form_auxinput5/c\\ io_form_auxinput5							= 2,"
+	puts $sedcommand "/io_form_auxinput7/c\\ io_form_auxinput7							= 2,"
+	puts $sedcommand "/chem_opt/c\\ chem_opt							= 14,"
+	puts $sedcommand "/biomass_burn_opt/c\\ biomass_burn_opt							= 0,"
+	close $sedcommand
+	exec sed -f sedcommand.sed namelist.input.sed > namelist.input
+	file delete -force sedcommand.sed namelist.input.sed
+
+
+exit
+	set c [catch { eval "exec mpiexec_mpt ./convert_emiss.exe" } msg ]
+	puts $log $msg
+	flush $log
+	
+
 }
 # ###########################################################################
 #
 # Generate Emissions: Tracers
 # 
 # ###########################################################################
+if { $tracer_gen == "yes" } {
+	puts $log "# ---------------------------------------------------------"
+	puts $log "# Start tracer gen"
+	puts $log "# ---------------------------------------------------------"
+	flush $log
 
+	cd [file join $EMIS_DIR TracerGen]
+	exec ln -sf [file join $EMIS_DIR QFED finn_to_wrffire wrffire* ] .
+	exec ln -sf [file join $WRF_RUN_DIR wrfchemi* ] .
+	
+	set c [catch { eval "exec /nasa/matlab/2017b/bin/matlab -nodisplay -r trujillo_create_tracers"} msg ]
+	puts $log $msg
+	flush $log
+}
+# ###########################################################################
+#
+# Run WRF with Tracers
+# 
+# ###########################################################################
+if { $wrftr == "yes"} {
 
+#	if { ![file exists $WRFTR_DIR]} {file mkdir $WRFTR_DIR; file attributes $WRFTR_DIR -permissions a+r;  puts $log "directory $WRFTR_DIR made"}
+
+	cd $WRFTR_DIR
+#	exec cp [file join $WRF_RUN_DIR	*] .
+#	set c [catch {eval "exec cp $WRF_RUN_DIR/* ."} msg ]
+	
+#	exec ln -sf [file join $EMIS_DIR Xinxin_Emissions wrfchemi*] .
+#	exec ln -sf [file join $EMIS_DIR NEI Xinxin_Emissions wrfchemi_00z_d01] .
+	set wrfchemi_f [glob -nocomplain [file join $EMIS_DIR NEI Xinxin_Emissions wrfchemi*]]
+	foreach x $wrfchemi_f {
+		exec ln -sf $x .
+	}	
+	set wrffire_f [glob -nocomplain [file join $EMIS_DIR TracerGen out wrffire*]]
+	foreach x $wrffire_f {
+		exec ln -sf $x .
+	}	
+puts ayyayai
+exit
+
+	exec cp namelist.input namelist.input.sed
+	set sedcommand [open sedcommand.sed w+]
+	puts $sedcommand "/start_year/c\\ start_year								= $syyyy,"
+	puts $sedcommand "/start_month/c\\ start_month							= $smm,"
+	puts $sedcommand "/start_day/c\\ start_day							= $sdd,"
+	puts $sedcommand "/start_hour/c\\ start_hour							= $shh,"
+	puts $sedcommand "/end_year/c\\ end_year							= $eyyyy,"
+	puts $sedcommand "/end_month/c\\ end_month							= $emm,"
+	puts $sedcommand "/end_day/c\\ end_day							= $edd,"
+	puts $sedcommand "/end_hour/c\\ end_hour							= $ehh,"
+	puts $sedcommand "/io_form_auxinput5/c\\ io_form_auxinput5							= 0,"
+	puts $sedcommand "/io_form_auxinput7/c\\ io_form_auxinput7							= 0,"
+	puts $sedcommand "/chem_opt/c\\ chem_opt							= 0,"
+	puts $sedcommand "/biomass_burn_opt/c\\ biomass_burn_opt							= 0,"
+	close $sedcommand
+	exec sed -f sedcommand.sed namelist.input.sed > namelist.input
+	file delete -force sedcommand.sed namelist.input.sed
+
+	set c [catch { eval "exec mpiexec_mpt ./real.exe" } msg ]
+	puts $log $msg
+	flush $log
+
+	exec cp namelist.input namelist.input.sed
+	set sedcommand [open sedcommand.sed w+]
+	puts $sedcommand "/start_year/c\\ start_year								= $syyyy,"
+	puts $sedcommand "/start_month/c\\ start_month							= $smm,"
+	puts $sedcommand "/start_day/c\\ start_day							= $sdd,"
+	puts $sedcommand "/start_hour/c\\ start_hour							= $shh,"
+	puts $sedcommand "/end_year/c\\ end_year							= $eyyyy,"
+	puts $sedcommand "/end_month/c\\ end_month							= $emm,"
+	puts $sedcommand "/end_day/c\\ end_day							= $edd,"
+	puts $sedcommand "/end_hour/c\\ end_hour							= $ehh,"
+	puts $sedcommand "/io_form_auxinput5/c\\ io_form_auxinput5							= 2,"
+	puts $sedcommand "/io_form_auxinput7/c\\ io_form_auxinput7							= 2,"
+	puts $sedcommand "/chem_opt/c\\ chem_opt							= 14,"
+	puts $sedcommand "/biomass_burn_opt/c\\ biomass_burn_opt							= 1,"
+	close $sedcommand
+	exec sed -f sedcommand.sed namelist.input.sed > namelist.input
+	file delete -force sedcommand.sed namelist.input.sed
+
+	
+	set c [catch { eval "exec mpiexec_mpt ./wrf.exe" } msg ]
+	puts $log $msg
+	flush $log
+
+}
 
 
 # ###########################################################################
 #
-# Run WRF
+# Run WRF without fire
 # 
 # ###########################################################################
+if { $wrfnf == "yes" } {
+	
+	cd $WRFNF_DIR
+	
+	exec cp namelist.input namelist.input.sed
+	set sedcommand [open sedcommand.sed w+]
+	puts $sedcommand "/start_year/c\\ start_year								= $syyyy,"
+	puts $sedcommand "/start_month/c\\ start_month							= $smm,"
+	puts $sedcommand "/start_day/c\\ start_day							= $sdd,"
+	puts $sedcommand "/start_hour/c\\ start_hour							= $shh,"
+	puts $sedcommand "/end_year/c\\ end_year							= $eyyyy,"
+	puts $sedcommand "/end_month/c\\ end_month							= $emm,"
+	puts $sedcommand "/end_day/c\\ end_day							= $edd,"
+	puts $sedcommand "/end_hour/c\\ end_hour							= $ehh,"
+	puts $sedcommand "/io_form_auxinput5/c\\ io_form_auxinput5							= 0,"
+	puts $sedcommand "/io_form_auxinput7/c\\ io_form_auxinput7							= 0,"
+	puts $sedcommand "/chem_opt/c\\ chem_opt							= 0,"
+	puts $sedcommand "/biomass_burn_opt/c\\ biomass_burn_opt							= 0,"
+	close $sedcommand
+	exec sed -f sedcommand.sed namelist.input.sed > namelist.input
+	file delete -force sedcommand.sed namelist.input.sed
+
+	
+	set c [catch { eval "exec mpiexec_mpt ./real.exe" } msg ]
+	puts $log $msg
+	flush $log
+
+
+	set c [catch { eval "exec mpiexec_mpt ./wrf.exe" } msg ]
+	puts $log $msg
+	flush $log
 
 
 
 
-
+}
