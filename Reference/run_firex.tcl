@@ -33,18 +33,20 @@ set OUT_DIR [file join $MAIN_DIR Output]
 set WRFTR_DIR [file join $WRF_DIR test/wrf_tracer]; # WRF tracer directory
 set WRFNF_DIR [file join $WRF_DIR test/wrf_nofire]; # WRF no fire directory
 set MAIAC_DIR [file join $DATA_DIR MAIAC]
+set GFS_DIR [file join $DATA_DIR GFS]
 
 # On/off Options
 set wps "no";			# WPS
 set real24 "no"; 		# 24 hour run of real.exe without chemistry
 set qfed "no";			# QFED BB emissions
 set nei "no";			# NEI athro emissions
-set tracer_gen "yes";	# Tracer generation for Pablo's code
+set tracer_gen "no";	# Tracer generation for Pablo's code
 set wrf "no";			# Run WRF
 set wrftr "no";			# Run wrf tracer code
 set wrfnf "no";			# Run wrf without fires
 set maiac_dl "no";		# Download MAIAC
 set maiac "no";			# Run MAIAC
+set gfs_dl "yes";		# GFS Download
 
 
 # Initialize log
@@ -75,20 +77,25 @@ set edd   [clock format $end_datetime -format %d]
 set ehh   [clock format $end_datetime -format %H]
 set edate $eyyyy$emm$edd
 
-# ###########################################################################
-#
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # MAIAC Dates 
-# 
-# ###########################################################################
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 set start_datewrf [expr [clock scan $syyyy$smm$sdd]+($shh*3600)-(24*3600*3)]
 set wrf_yyyy [clock format $start_datewrf -format %Y]
 set wrf_mm [clock format $start_datewrf -format %m]
 set wrf_dd [clock format $start_datewrf -format %d]
 set wrf_hh [clock format $start_datewrf -format %H]
 set sdate_wrf $wrf_yyyy$wrf_mm$wrf_dd
-puts start_datewrf
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Tracer Dates 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 set timestep_tracer 88
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# GFS Dates 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+set timestep_gfs 96
 
 # ###########################################################################
 #
@@ -99,21 +106,92 @@ set timestep_tracer 88
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # Download MAIAC
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-if { $maiac == "yes" } {
+if { $maiac_dl == "yes" } {
 puts $log "# ---------------------------------------------------------"
 puts $log "# get maiac data from EARTHDATA, NASA"
 puts $log "# ---------------------------------------------------------"
 
   # download data
   foreach hour [exec seq 0 24 $timestep_tracer ] {
-      set str [eval "exec date -d \"$wrf_aaaa$wrf_mm$wrf_dd $wrf_hh $hour hour\" +\"%Y%m%d\""]
+      set str [eval "exec date -d \"$wrf_yyyy$wrf_mm$wrf_dd $wrf_hh $hour hour\" +\"%Y%m%d\""]
       set date_str [string map {\" {}} $str]
       puts $log "downloading: $date_str"
       flush $log
-      set c [catch { eval "exec $MAIAC_DIR/Download/download_maiac.sh ${date_str} ${maiac_dir}" } msg ]
+      set c [catch { eval "exec $MAIAC_DIR/Scripts/download_maiac.sh ${date_str} ${MAIAC_DIR}" } msg ]
       puts $log $msg
       flush $log
   }
+}
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Download GFS
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+if { $gfs_dl == "yes" } {
+
+	puts $log "# ---------------------------------------------------------"
+	puts $log "# Get GFS forecat fields grib version 2 format"
+	puts $log "# From tgftp.nws.noaa.gov FTP ncep distribution site"
+	puts $log "# ---------------------------------------------------------"
+
+	# set ftp variables
+	#  # DEFINE forecast start
+	#  set address  tgftp.nws.noaa.gov
+	#  set user anonymous
+	#  set pass cgrer
+	#  set remdir SL.us008001/ST.opnl/MT.gfs_CY.$gfs_run\/RD.$week\/PT.grid_DF.gr2
+
+	set gfs_run 12
+
+	set address  ftp.ncep.noaa.gov
+	set user anonymous
+	set pass cgrer
+	set remdir pub/data/nccf/com/gfs/prod/gfs.${sdate}${gfs_run}
+
+	# check destination folder
+	set METEO_INP [file join $GFS_DIR $sdate\_$gfs_run]
+	if { ![file exists $METEO_INP]} {file mkdir $METEO_INP; file attributes $METEO_INP -permissions a+rx;  puts $log "directory $METEO_INP made"}
+
+	# dowload files
+	set fore_step [expr $timestep_gfs+12]
+	puts $log "fore_step $fore_step"
+
+	for {set i 0} {$i <= $fore_step} {incr i 3} {
+		# METEO file name
+		set F_INP gfs.t${gfs_run}z.pgrb2.0p25.f[format "%03u" $i] 
+		puts $log "Looking for $F_INP"
+		if { ![file exists [file join $METEO_INP $F_INP]]} {
+			puts $log "get_gfs: $F_INP not yet present in local archive"
+			flush $log
+			puts $log $address
+			puts $log $remdir
+			puts $log $METEO_INP
+			puts $log $F_INP
+			set WGET_BIN [ file join / usr bin wget ]
+			set WGET_LOG [ file join $METEO_INP wget_log_$F_INP ]
+			set returnget [exec $::WGET_BIN -P $METEO_INP ftp://$address\/$remdir\/$F_INP >&$::WGET_LOG]
+	#        set returnget [exec /usr/bin/wget -nv --ftp-user=$user --ftp-password=$pass -P $METEO_INP ftp://$address\/$remdir\/$F_INP]
+	#        set returnget [get_ftp $address $user $pass $remdir $METEO_INP $F_INP]
+			set returnget [catch { eval "exec ls $METEO_INP\/$F_INP" } msg ]
+			puts $log $returnget
+			puts $log $msg
+			flush $log
+	#        puts $log "get_gfs (1 ok,0 no): $returnget"
+			puts $log "get_gfs (0 ok,>0 no): $returnget"
+			if { $returnget==0 } {
+				puts $log "[clock format [clock seconds] -format "%H:%M:%S" ] |I| get_gfs: $F_INP download ok"
+			} else {
+				puts $log "[clock format [clock seconds] -format "%H:%M:%S" ] |E| get_gfs: $F_INP download error"
+				puts $log "[clock format [clock seconds] -format "%H:%M:%S" ] |E| get_gfs: try later"
+				crontab_shell 1
+			}
+		}
+
+		puts $log "[clock format [clock seconds] -format "%H:%M:%S" ] |I| get_gfs: $F_INP download ok"
+		file attributes [file join $METEO_INP $F_INP] -permissions a+rx 
+	}
+
+	puts $log "[clock format [clock seconds] -format "%H:%M:%S" ] |I| get_gfs $sdate DONE "
+	
 }
 
 
@@ -498,7 +576,7 @@ if { $wrfnf == "yes" } {
 # Run MAIAC Inversion
 # 
 # ###########################################################################
-if {maiac = "yes"} {
+if {$maiac == "yes"} {
 	puts $log "# ---------------------------------------------------------"
 	puts $log "# Start MAIAC"
 	puts $log "# ---------------------------------------------------------"
