@@ -40,7 +40,7 @@
  auxinput7_inname                   = "wrffirechemi_d<domain>_<date>",
  frames_per_auxinput5               = 12,
  frames_per_auxinput7               = 1,
- debug_level                        = 300,
+ debug_level                        = 0,
 /
 
 &domains

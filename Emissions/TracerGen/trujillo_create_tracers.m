@@ -167,7 +167,7 @@ wrffire_basename = 'wrffirechemi_d01_';
 wrffire_invar = 'ebu_in_co';
 
 % Anthropogenic Emissions Names
-anthro_pref = '../../WRF/test/em_real/wrfchemi_';
+anthro_pref = 'wrfchemi_';
 anthro_invar = 'E_CO';
 
 % Output path for wrffire files with tracer inputs
@@ -260,6 +260,7 @@ for i = 1:Nhrs
     hr_now = str2num(datestr(datenow,'HH')); 
     anth_index = mod(hr_now,12)+1;
         
+	hr_now
     % Get NEI Data
     if hr_now <12
         anth_data = truj_read_nc([anthro_pref '00z_d01'], {'E_CO'});

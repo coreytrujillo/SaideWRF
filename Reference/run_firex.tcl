@@ -22,6 +22,7 @@
 set MAIN_DIR /nobackup/ctrujil1/WRF/Tracer_Code/runs/FIREX-AQ
 set DATA_DIR /nobackup/ctrujil1/DATA
 
+# Lower Level Directories
 set ANLS_DIR [file join $MAIN_DIR]
 set EMIS_DIR [file join $MAIN_DIR Emissions]
 set REF_DIR [file join $MAIN_DIR Reference]
@@ -31,16 +32,19 @@ set WRF_RUN_DIR [file join $WRF_DIR test/em_real]
 set OUT_DIR [file join $MAIN_DIR Output]
 set WRFTR_DIR [file join $WRF_DIR test/wrf_tracer]; # WRF tracer directory
 set WRFNF_DIR [file join $WRF_DIR test/wrf_nofire]; # WRF no fire directory
+set MAIAC_DIR [file join $DATA_DIR MAIAC]
 
 # On/off Options
-set wps "no"
-set real "no"
-set qfed "no"
-set nei "no"
-set tracer_gen "no"
-set wrf "no"
-set wrftr "yes"
-set wrfnf "no"
+set wps "no";			# WPS
+set real24 "no"; 		# 24 hour run of real.exe without chemistry
+set qfed "no";			# QFED BB emissions
+set nei "no";			# NEI athro emissions
+set tracer_gen "yes";	# Tracer generation for Pablo's code
+set wrf "no";			# Run WRF
+set wrftr "no";			# Run wrf tracer code
+set wrfnf "no";			# Run wrf without fires
+set maiac_dl "no";		# Download MAIAC
+set maiac "no";			# Run MAIAC
 
 
 # Initialize log
@@ -53,52 +57,11 @@ set log [open $log_name w+]
 # 
 # ###########################################################################
 
-
-# Define start date and time UTC
-# set start_date_str "20130820"; # Start Date
-# set shh 12
-# set start_hr_MT 12; # Simulation start hour in Mountain time
-
-# if { $start_date_str > 0} {
-#	set start_date [string range $start_date_str 0 3] ;# Year
-#	lappend start_date [string range $start_date_str 4 5] ;# Month
-#	lappend start_date [string range $start_date_str 6 7] ;# Day
-#	lappend start_date $shh; # Hour
-# 
-#	} else {
-#	set secondi [clock seconds]
-#	# Convert MDT to UTC: +6 hours  
-#	set secondi [expr $secondi + 3600*6]; 
-#	set start_date [split [clock format $secondi -format %Y:%m:%d:%H] ":"] ;
-#}
-
-#puts start_date
-#puts $start_date
-
-#set syyyy [lindex $start_date 0] ;# Year
-#set smm   [lindex $start_date 1] ;# Month
-#set sdd   [lindex $start_date 2] ;# Day
-#set sdate $syyyy$smm$sdd
-#puts sdate
-#puts $sdate
-
-# set shh [lindex $start_date 3]; # Hour
-#set sdatetime $sdate$shh
-#puts sdatetime
-#puts $sdatetime
-#set sss [clock scan $sdate]
-#set ttt [clock format $sss -format %Y-%m-%d_%H:%M:%S]
-#set vvv [clock add $sss 6 hours]
-#set zzz [clock format $vvv -format %Y-%m-%d_%H:%M:%S]
-#######################################################
 set syyyy 2013
 set smm 08
 set sdd 22
 set shh 00
 set sdate $syyyy$smm$sdd
-
-# set sdate $syyyy-$smm-$sdd\_$shh:00:00
-
 set start_datetime [clock add [clock scan $sdate] $shh hours]
 
 # Define simulation length in hours
@@ -114,9 +77,44 @@ set edate $eyyyy$emm$edd
 
 # ###########################################################################
 #
+# MAIAC Dates 
+# 
+# ###########################################################################
+set start_datewrf [expr [clock scan $syyyy$smm$sdd]+($shh*3600)-(24*3600*3)]
+set wrf_yyyy [clock format $start_datewrf -format %Y]
+set wrf_mm [clock format $start_datewrf -format %m]
+set wrf_dd [clock format $start_datewrf -format %d]
+set wrf_hh [clock format $start_datewrf -format %H]
+set sdate_wrf $wrf_yyyy$wrf_mm$wrf_dd
+puts start_datewrf
+
+set timestep_tracer 88
+
+# ###########################################################################
+#
 # Download necessary data
 # 
 # ###########################################################################
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# Download MAIAC
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+if { $maiac == "yes" } {
+puts $log "# ---------------------------------------------------------"
+puts $log "# get maiac data from EARTHDATA, NASA"
+puts $log "# ---------------------------------------------------------"
+
+  # download data
+  foreach hour [exec seq 0 24 $timestep_tracer ] {
+      set str [eval "exec date -d \"$wrf_aaaa$wrf_mm$wrf_dd $wrf_hh $hour hour\" +\"%Y%m%d\""]
+      set date_str [string map {\" {}} $str]
+      puts $log "downloading: $date_str"
+      flush $log
+      set c [catch { eval "exec $MAIAC_DIR/Download/download_maiac.sh ${date_str} ${maiac_dir}" } msg ]
+      puts $log $msg
+      flush $log
+  }
+}
 
 
 # ###########################################################################
@@ -124,7 +122,6 @@ set edate $eyyyy$emm$edd
 # Run WPS
 # 
 # ###########################################################################
-if { 0 == 1 } {
 if { $wps == "yes" } {
 	puts $log "# ---------------------------------------------------------"
 	puts $log "# Start wps!"
@@ -186,7 +183,7 @@ if { $wps == "yes" } {
 # Run a real.exe for 24 hours for input files
 # 
 # ###########################################################################
-if { $real == "yes" } {
+if { $real24 == "yes" } {
 	puts $log "# ---------------------------------------------------------"
 	puts $log "# run real.exe "
 	puts $log "# ---------------------------------------------------------"
@@ -299,7 +296,6 @@ if {$qfed == "yes"} {
 	puts $log "# ---------------------------------------------------------"
 
 }
-}
 
 # ###########################################################################
 #
@@ -350,12 +346,9 @@ if { $nei =="yes" } {
 	exec sed -f sedcommand.sed namelist.input.sed > namelist.input
 	file delete -force sedcommand.sed namelist.input.sed
 
-
-exit
 	set c [catch { eval "exec mpiexec_mpt ./convert_emiss.exe" } msg ]
 	puts $log $msg
 	flush $log
-	
 
 }
 # ###########################################################################
@@ -370,10 +363,18 @@ if { $tracer_gen == "yes" } {
 	flush $log
 
 	cd [file join $EMIS_DIR TracerGen]
-	exec ln -sf [file join $EMIS_DIR QFED finn_to_wrffire wrffire* ] .
-	exec ln -sf [file join $WRF_RUN_DIR wrfchemi* ] .
+
+	set wrffire_t [glob -nocomplain [file join $EMIS_DIR QFED finn_to_wrffire wrffire* ]]
+	foreach x $wrffire_t {
+		exec ln -sf $x .
+	}
 	
-	set c [catch { eval "exec /nasa/matlab/2017b/bin/matlab -nodisplay -r trujillo_create_tracers"} msg ]
+	set wrfchemi_t [glob [file join $WRF_RUN_DIR wrfchemi* ]]
+	foreach x $wrfchemi_t {
+		exec ln -sf $x .
+	} 
+	
+	set c [catch { eval "exec /nasa/matlab/2017b/bin/matlab -nodisplay -r /nasa/matlab/2017b/bin/matlab -nodisplay -r \"try;trujillo_create_tracers;catch;disp('MATLAB issue');exit;end\" "} msg ]
 	puts $log $msg
 	flush $log
 }
@@ -489,6 +490,38 @@ if { $wrfnf == "yes" } {
 	flush $log
 
 
+
+
+}
+# ###########################################################################
+#
+# Run MAIAC Inversion
+# 
+# ###########################################################################
+if {maiac = "yes"} {
+	puts $log "# ---------------------------------------------------------"
+	puts $log "# Start MAIAC"
+	puts $log "# ---------------------------------------------------------"
+	flush $log
+
+	date_aux="${wrf_yyyy}-${wrf_mm}-${wrf_dd} ${wrf_hh}:00:00"
+	set off_maiac 24; # MAIAC offset from beginning
+	year_i_maiac=$(date -d "$date_aux  ${off_maiac} hours" '+%Y')
+    month_i_maiac=$(date -d "$date_aux  ${off_maiac} hours" '+%m')
+    day_i_maiac=$(date -d "$date_aux  ${off_maiac} hours" '+%d')
+    hour_i_maiac=$(date -d "$date_aux  ${off_maiac} hours" '+%H')
+    echo "Date start MAIAC= ${year_i_maiac}-${month_i_maiac}-${day_i_maiac}_${hour_i_maiac}:00:00"
+
+	year_f=$(date -d "$date_aux  ${timestep_tracer} hours" '+%Y')
+    month_f=$(date -d "$date_aux  ${timestep_tracer} hours" '+%m')
+    day_f=$(date -d "$date_aux  ${timestep_tracer} hours" '+%d')
+    hour_f=$(date -d "$date_aux  ${timestep_tracer} hours" '+%H')
+    echo "Date end TRACER D01= ${year_f}-${month_f}-${day_f}_${hour_f}:00:00"
+
+	# Write MAIAC to hourly files
+	set c [catch { eval "exec /nasa/matlab/2017b/bin/matlab -nodisplay -r /nasa/matlab/2017b/bin/matlab -nodisplay -r \"try;write_maiac_matlab_file_hourly([$year_i_maiac $month_i_maiac $day_i_maiac $hour_i_maiac 0 0],[$year_f $month_f $day_f $hour_f 0 0],'${MAIAC_DATA}/');catch;disp('MATLAB issue');exit;end\" "} msg ]
+	puts $log $msg
+	flush $log
 
 
 }
